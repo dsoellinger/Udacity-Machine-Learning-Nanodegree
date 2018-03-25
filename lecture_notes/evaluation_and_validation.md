@@ -1,6 +1,5 @@
-<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
-
 # Evaluation Metrics
+
 ## Confusion Matrix
 A confusion matrix is a table that is often used to describe the performance of a classification model.
 
@@ -10,7 +9,7 @@ The confusion matrix for a binary classifier looks as follows:
  
 **Note:** </br>
 _False Positive_ is also known as _Type 1 Error (Error of the first kind)_.<br />
-_False Negative_ is also know as _Type 2 Error (Error of the second kind)_.
+_False Negative_ is also known as _Type 2 Error (Error of the second kind)_.
 
 ## Accuracy
 The accuracy of a model tells of how many points get classified correctly.
@@ -19,7 +18,7 @@ The accuracy of a model tells of how many points get classified correctly.
 
 However, the accuracy isn't always a suitable metric to say whether a model performs well or not. 
 This is typically the case when data are imbalanced. For example, let's assume we want to predict whether an e-mail is spam or not. Such a dataset will often comprise of many non-fake e-mails and a few fake e-mails. A highly imbalanced dataset.<br />
-What would be a potential model that achieves a good accuracy? Well, let's assume we have a model that classifies every e-mail as non-spam. Since the minority of the e-mails is non-spam your classifier will achieve a very good accuracy. Nonetheless, despite of a good accuracy our model is insufficient since it's not able to classify any e-mail as spam. <br />
+What would be a potential model that achieves a good accuracy? Well, let's assume we have a model that classifies every e-mail as non-spam. Since the minority of the e-mails is non-spam your classifier will achieve a very good accuracy. Nonetheless, despite a good accuracy, our model is insufficient since it's not able to classify an e-mail as spam. <br />
 Therefore, evaluating the accuracy of this model is pointless.
 
 ## Precision and Recall
@@ -40,7 +39,7 @@ Carrying around two numbers (Precision and Recall) is inconvenient. Ideally, we 
 
 \\(\text{F1-Score} = \text{2} \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}\\) <br /><br />
 
-You might wonder why we cannot simply take the average of both values. Unfortunately, the average has an undesirable property. Let's consider the extrem cases where Precision / Recall is either 100% or 0%. Computing the average would yield to a score of approx. 50% despite of the fact that the performance is worse.
+You might wonder why we cannot simply take the average of both values. Unfortunately, the average has an undesirable property. Let's consider the extreme cases where Precision / Recall is either 100% or 0%. Computing the average would yield a score of approx. 50% despite the fact that the performance is worse.
 The F1-Score instead is based on the Harmonic Mean which allows us to overcome this problem.
 
 ## F-beta Score

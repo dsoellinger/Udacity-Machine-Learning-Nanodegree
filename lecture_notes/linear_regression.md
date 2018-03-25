@@ -10,8 +10,8 @@ $y = (w_{1}-\alpha \cdot p) \cdot x + (d-\alpha)$
 
 **Why do we need the p?**
 
-* If p is on the left of the y axis, it's a negative number. Therefore we rotate the line in the correct direction.
-* If the distance to the y axis is small, we want to add a small number. Otherwise, we are going to add a large number.
+* If p is on the left of the y-axis, it's a negative number. Therefore we rotate the line in the correct direction.
+* If the distance to the y-axis is small, we want to add a small number. Otherwise, we are going to add a large number.
 
 <img src="images/absolute_trick.png" width="350"/>
 
@@ -33,7 +33,7 @@ Linear regression produces a straight line model from the training data. If the 
 Linear regression tries to find a 'best fit' line among the training data. If your dataset has some outlying extreme values that don't fit a general pattern, they can have a surprisingly large effect.
 
 ## Regularization
-Useful technique to improve our models and make sure that they don't overfit.
+A useful technique to improve our models and make sure that they don't overfit.
 
 Let's assume that we have two models. One is simple (eg. linear equation) and one that is more complex (higher-degree polynomial). Of course, the polynomial is more likely to do better on the training set since it's easier to get a low error.
 

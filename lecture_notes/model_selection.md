@@ -1,9 +1,7 @@
-<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
-
 # Model Selection
+
 ## Types of Errors
-**Overfitting:** Overcomplicate the problem. The model does well in the training set,
-but tends to memorize it instead of learning the characteristics of it. Error due to variance.
+**Overfitting:** Overcomplicate the problem. The model does well in the training set but tends to memorize it instead of learning the characteristics of it. Error due to variance.
 
 <img src="images/overfitting.png" width="300"/>
 
