@@ -13170,17 +13170,19 @@ It is a ratio of true positives(words classified as spam, and which are actually
 <p><strong>Real-world application</strong> <br/>
 A common area of application for Gaussian Naive Bayes is text classification. For instance, it can be used to classify e-mails as spam / non-spam.</p>
 <p><strong>Strengths</strong> <br/>
-Gaussian Naive Bayes assumes the features to be indendent from each other which results in a very simplistic model. Therefore, we need less data to train the model.</p>
+Gaussian Naive Bayes can deal with small training sets that have many features (e.g. text classification).
+The resulting model is very simplistic and can be trained quickly.</p>
 <p><strong>Weaknesses</strong> <br/>
 Gaussian Naive Bayes does not work well if the train data are incomplete.
-If you have no occurrences of a class label and a certain attribute value together (e.g. class="nice", shape="sphere") then the frequency-based probability estimate will be zero. Given Naive-Bayes' conditional independence assumption, when all the probabilities are multiplied you will get zero and this will affect the posterior probability estimate.
-Additionally, strongly correlating features might become an issue. However, there are algorithms to identify those features. (e.g. chi-squared test)</p>
+If you have no occurrences of a class label and a certain attribute value together then the frequency-based probability estimate will be zero. Given Naive-Bayes' conditional independence assumption, when all the probabilities are multiplied you will get zero and this will affect the posterior probability estimate.
+Additionally, strongly correlating features might become an issue since Naive Bayes assumes independence of features. It also can’t learn interactions between features (e.g., it can’t learn that although you love movies with Brad Pitt and Tom Cruise, you hate movies where they’re together.</p>
 <p><strong>What makes it a good candidate?</strong> <br/>
 It could be a good candidate to solving the problem as we have a large data set with few features.
 I also expect Gaussian Naive Bayes to be the fast algorithm among the given ones.</p>
 <p><a href="https://en.wikipedia.org/wiki/Naive_Bayes_classifier">https://en.wikipedia.org/wiki/Naive_Bayes_classifier</a> <br/>
  <a href="https://www.researchgate.net/post/What_are_the_disadvantages_of_Naive_Bayes">https://www.researchgate.net/post/What_are_the_disadvantages_of_Naive_Bayes</a> <br/>
- <a href="http://www.simafore.com/blog/3-challenges-with-naive-bayes-classifiers-and-how-to-overcome">http://www.simafore.com/blog/3-challenges-with-naive-bayes-classifiers-and-how-to-overcome</a></p>
+ <a href="http://www.simafore.com/blog/3-challenges-with-naive-bayes-classifiers-and-how-to-overcome">http://www.simafore.com/blog/3-challenges-with-naive-bayes-classifiers-and-how-to-overcome</a>
+ <a href="http://blog.echen.me/2011/04/27/choosing-a-machine-learning-classifier/">http://blog.echen.me/2011/04/27/choosing-a-machine-learning-classifier/</a></p>
 </li>
 </ul>
 <ul>
@@ -13197,37 +13199,39 @@ better accuracy in comparison to the traditional query based searching technique
 <strong>Handwriting recognition:</strong> We use SVMs to recognize handwritten characters used widely. <br/>
 <strong>Generalized predictive control:</strong> Use SVM based GPC to control chaotic dynamics with useful parameters. <br/>   <br/>
 <strong>Strengths</strong> <br/>
-SVM transform features in a higher dimensional space and tries to find hyperplanes that separate the data<br>
-points. That's why the SVM is able to solve problems which might not look like linearily separatable at the 
-first glance. However, by transforming it in higher dimensional space first, the problem becomes easily 
-solvable. Furthermore, SVM is defined by a convex optimization problem which does not have a local minimum.</p>
+SVM can transform features in a higher dimensional space and find a hyperplane in this space that separates the data points. That's why the SVM is able to solve problems which might not look like linearly separatable.
+Furthermore, SVM is defined by a convex optimization problem which does not have a local minimum.</p>
 <p><strong>Weaknesses</strong> <br/>
 Fitting the model can take a long time depending on how we choose our kernel parameters. Furthermore, picking 
-the right kernel and its parameters is often quite hard. In a way the SVM moves the problem of over-fitting from 
-optimising the parameters to model selection. Sadly kernel models can be quite sensitive to over-fitting the 
-model selection criterion.</p>
+the right kernel and its parameters is often quite hard. In a way the SVM moves the problem of overfitting from 
+optimising the parameters to model selection. <br/>
+More "complex" kernels (higher degree polynomials) are sensitive to overfitting. <br/>
+Furthermore, SVMs are binary classifiers. Solving a multi-class problem requires the training of multiple classifiers which will take a long time.</p>
 <p><strong>What makes it a good candidate?</strong> <br/>
-The size of our dataset might become a problem, but SVM is always a good option to try since we don't know how 
-complex our problem is.</p>
+Since your problem is a two-class problem, SVMs can be a good approach to solving this problem. By transforming into a higher dimensional space we might be able to better classify the data.</p>
 <p><a href="https://data-flair.training/blogs/applications-of-svm/">https://data-flair.training/blogs/applications-of-svm/</a> <br/>
 <a href="https://stats.stackexchange.com/questions/24437/advantages-and-disadvantages-of-svm">https://stats.stackexchange.com/questions/24437/advantages-and-disadvantages-of-svm</a></p>
 </li>
 </ul>
 <ul>
-<li><p><strong>Ensemble Methods</strong></p>
+<li><p><strong>Gradient Boosting (Ensemble Method)</strong></p>
 <p><strong>Real-world application</strong> <br/>
 Ensemble learning helps improve machine learning results by combining several models. In 2009 a team won the 
-Netflix prize using an essemble based model.</p>
+Netflix prize using essemble based methods.</p>
 <p><strong>Strengths</strong> <br/>
-Often improves predictive performance. They are less likely to overfit. Reduces variance.</p>
+GB-Trees have a better accuracy than Random Forests. <br/></p>
 <p><strong>Weaknesses</strong> <br/>
-Usually produces output that is very hard to analyze. Some classifiers are sensitive to noise and outliers.</p>
+Prone to overfitting. <br/>
+Requires careful tuning of different hyper-parameters. <br/>
+Regression: It might not be robust to outliners depending on the selected loss function (e.g. squared error)</p>
 <p><strong>What makes it a good candidate?</strong> <br/>
-It seems reasonable that the combination of different models might outperform other strategies.</p>
+Decision Tree based methods are fast to train. However, a single decision tree is often not enough to classify the data accurately. Combining multiple decision trees will improve our result (Random Forests, Gradient Boosting). Since Gradient Boosting is superior to Random Forests (when picking the right parameters) most of the time, I've chosen Gradient Boosting.</p>
 <p><a href="https://en.wikipedia.org/wiki/Netflix_Prize">https://en.wikipedia.org/wiki/Netflix_Prize</a> <br/>
 <a href="https://blog.statsbot.co/ensemble-learning-d1dcd548e936">https://blog.statsbot.co/ensemble-learning-d1dcd548e936</a> <br/>
 <a href="http://www.stats.ox.ac.uk/~flaxman/HT17_lecture15.pdf">http://www.stats.ox.ac.uk/~flaxman/HT17_lecture15.pdf</a> <br/>
-<a href="https://www.quora.com/How-do-ensemble-methods-work-and-why-are-they-superior-to-individual-models">https://www.quora.com/How-do-ensemble-methods-work-and-why-are-they-superior-to-individual-models</a> <br/></p>
+<a href="https://www.quora.com/How-do-ensemble-methods-work-and-why-are-they-superior-to-individual-models">https://www.quora.com/How-do-ensemble-methods-work-and-why-are-they-superior-to-individual-models</a> <br/>
+<a href="http://blog.kaggle.com/2017/01/23/a-kaggle-master-explains-gradient-boosting/">http://blog.kaggle.com/2017/01/23/a-kaggle-master-explains-gradient-boosting/</a>
+<a href="http://www.ccs.neu.edu/home/vip/teach/MLcourse/4_boosting/slides/gradient_boosting.pdf">http://www.ccs.neu.edu/home/vip/teach/MLcourse/4_boosting/slides/gradient_boosting.pdf</a></p>
 </li>
 </ul>
 
@@ -14207,6 +14211,7 @@ It seems to me that the best method to solve this problem is the Gradient Boosti
 Besides achieving the best accuracy and f-score, it also can be trained in a reasonable amount of time too.
 It's also interesting to see that Gaussian Naive Bayes performs extremely bad on our dataset compared to the other models. Although it is the fastest one to train, the model is not competitive if we consider accuracy / f-score.
 SVC does also perform very nicely in terms of accuracy / f-score, but it takes significantly more time to train than the Gradient Boosting Classifier.</p>
+<p>When taking all these attributes into account, we can conclude that the Gradient Descent Boosting Classifier is the best classifier for our problem. Due to its fast training we will be able to fully utilize the entire dataset and therefore maximize the performance on unseen data. Additionally, it already has the best accuracy without further parameter tuning.</p>
 
 </div>
 </div>
@@ -14229,11 +14234,30 @@ SVC does also perform very nicely in terms of accuracy / f-score, but it takes s
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer: </strong></p>
-<p>Gradient boosting is a machine learning technique for regression and classification problems, which produces a prediction model in the form of an ensemble of weak prediction models, typically decision trees.</p>
-<p>The objective of any supervised learning algorithm is to define a loss function and minimize it. For example, the Mean Squared Error Loss (MSE). By using gradient descent and updating our predictions based on a learning rate, we can find the values where MSE is minimum.</p>
-<p>A basic assumption of linear regression is that the sum of its residuals is 0, i.e. the residuals should be spread randomly around zero. Now think of these residuals as mistakes committed by our predictor model. Although, tree-based models are not based on such assumptions, but if we think logically (not statistically) about this assumption, we might argue that, if we are able to see some pattern of residuals around 0, we can leverage that pattern to fit a model.</p>
-<p>So, the intuition behind gradient boosting algorithm is to repetitively leverage the patterns in residuals and strengthen a model with weak predictions and make it better.</p>
-<p><a href="https://medium.com/mlreview/gradient-boosting-from-scratch-1e317ae4587d">https://medium.com/mlreview/gradient-boosting-from-scratch-1e317ae4587d</a></p>
+<p>Gradient boosting is an ensemble based machine learning technique. Ensemble-based techniques combine many so-called "weak" learners into strong learners. A weak learner is any machine learning algorithm that performs poorly, its accuracy is above chance, but just barely. For example, a single decision tree with less depth (of course, in real-world we always have to consider a specific problem when before saying that an algorithm is weak).</p>
+<p>Anyway, the question that is arising now is how we should combine such "weak" learners to form a better learner.
+This is where the term "Gradient Boosting" comes into play. It describes a strategy for generating and combining decision trees to build a better learner out of multiple decision trees.</p>
+<p><strong>Idea:</strong> <br/>
+Let's say we are given (x1, y1),(x2, y2), ...,(xn, yn) and the task is to fit a model F(x) to minimize square loss. F(x) is a decision/regression tree. <br/>
+Now, after fitting the model, we evaluate its performance and see that it makes some mistakes. <br/> For example, F(x1) = 0.8, while y1 = 0.9, F(x2) = 1.4 while y2 = 1.3, etc. So, how to improve it? <br/>
+Well, the idea of Gradient Boosting is to add another decision tree (leave the existing one untouched) that compensates the error. <br/></p>
+<p>In mathematical terms: F(x1) + h(x1) = y1 ==&gt; h(x1) = y1 - F(x1) <br/></p>
+<p>Next, we fit a new tree on our data (x1, y1 − F(x1)),(x2, y2 − F(x2)), ...,(xn, yn − F(xn)). <br/>
+In other words, we are generating a tree that predicts the error of our previous decision tree.</p>
+<p><strong>Note:</strong> yi − F(xi) are called residuals.</p>
+<p>If the new model F + h is still not satisfactory, we can add another regression tree... We can repeat this process until we find a model that's satisfactory. <br/> <br/></p>
+<p>Now, you might wonder why the method is called Gradient Boosting even if we haven't taken any derivative.
+The reason for this is the fact that when analyzing the algorithm mathematically, we will reach the conclusion that what we did is actually gradient descent. <br/></p>
+<p>For regression with square loss:</p>
+<ul>
+<li>residual &lt;==&gt; negative gradient</li>
+<li>fit h to residual &lt;==&gt; fit h to the negative gradient</li>
+<li>update F based on residual &lt;==&gt; update F based on negative gradient
+<br/>
+So we are actually updating our model using gradient descent!</li>
+</ul>
+<p><a href="https://medium.com/mlreview/gradient-boosting-from-scratch-1e317ae4587d">https://medium.com/mlreview/gradient-boosting-from-scratch-1e317ae4587d</a>
+<a href="http://www.ccs.neu.edu/home/vip/teach/MLcourse/4_boosting/slides/gradient_boosting.pdf">http://www.ccs.neu.edu/home/vip/teach/MLcourse/4_boosting/slides/gradient_boosting.pdf</a></p>
 
 </div>
 </div>
@@ -15243,7 +15267,7 @@ AEqSJFXGAChJklQZA6AkSVJlDICSJEmVMQBKkiRV5jdVw5bRkilNAgAAAABJRU5ErkJggg==
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Answer:</strong></p>
-<p>My assumptions were partially correct. For example, the chart confirms that capital-gain, capital-loss and age are important features. However, it turned out that capital-gain and capital-loss are not as important as I expected them to be. Surprisingly, the marital status plays an important role as well. I didn't expect that.
+<p>My assumptions were partially correct. For example, the chart confirms that capital-gain, capital-loss and age are important features. However, it turned out that capital-gain and capital-loss are not as important as I expected them to be. Surprisingly, the marital status plays an important role as well. Maybe it's because of the fact that people who are in a relationship tend to have more money if both spouses work for a company and their expenses divide evenly. <br/>
 Finally, there's the education number which seems to be the most important features. Maybe it's because of the fact the education number gives us some information about whether the person studies or not. Furthermore, it might incorporate some knowledge about the person's age.</p>
 
 </div>
