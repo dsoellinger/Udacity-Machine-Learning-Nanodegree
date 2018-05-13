@@ -20,6 +20,8 @@ We want to punish large coefficients. Therefore, we add an additional term to ou
 When we train our network it might happen that some parts of a network tend to develop much larger weights than other parts. So the part with large weights starts to dominate our training while the other part gets "ignored". <br/>
 A common way to prevent this is called "dropout". By randomly removing some weights (connections) in each epoch we make sure that all parts of the network get trained.
 
+https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf
+
 ## Vanishing Gradients and other activation functions
 
 <img src="images/dnn_vanishing_gradients.png" width="300"/>
