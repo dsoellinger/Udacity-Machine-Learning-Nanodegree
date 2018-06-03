@@ -8,3 +8,4 @@ This repository contains all projects as well as lecture notes of the Udacity Ma
 - Bayesian Inference
 - Boston Housing
 - Charity ML
+- Dog Breed Classification
