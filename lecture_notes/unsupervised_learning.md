@@ -131,7 +131,7 @@ In DB-Scan not every point needs to be part of a cluster. Points that are not pa
    <img src="images/db_scan_1.png" width="300"/>
 3. If there are less than $n_{min}$ data points in the circular region, we mark the point as noise.  
    If there are more than $n_{min}$ data points in the circular region (incl. points which are already marked as noise), we have found a cluster.  
-   **Note:** The point we've selected is called **core point**. The other points are called **border points**.
+   **Note:** The point we've selected is called **core "point**. The other points are called **border points**.
 4. Dependent on whether we found a cluster or not we proceed as follows:  
    If we found a cluster, we proceed by performing the same check with the border points. If this point satisfies your cluster criterion, we merge the cluster with our previous cluster.  
    If not enough point were found, we proceed with step 1.  
