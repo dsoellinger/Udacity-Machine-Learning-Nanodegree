@@ -154,4 +154,33 @@ In DB-Scan not every point needs to be part of a cluster. Points that are not pa
 <img src="images/k_means_db_scan_comparions.png" width="350"/>
 
 
+## Gaussian Mixture Models
+
+Gaussian Mixture Model clustering is a soft-clustering algorithm which means that every point belongs to **every** cluster we have with a certain probability.
+
+It's a little bit like saying... Hmm, these set of points look like they come from a Gaussian distribution that looks like this. This distribution forms our cluster.
+
+Formally, we try to approximate your distribution by a set of Gaussian distributions.
+
+<img src="images/gaussian_mixture_model_example.png" width="250"/>
+
+
+### Property of a Gaussian
+
+One important property of a Gaussian distribution is the fact that the area between $\mu - 1\sigma$ and $\mu + 1\sigma$ contains 68% of all data points.  
+The area between $\mu - 2\sigma$ and $\mu + 2\sigma$ contains 95% of the points.  
+The area between $\mu - 3\sigma$ and $\mu + 3\sigma$ contains 99% of the points.
+
+<img src="images/gaussian_distribution_property.png" width="350"/>
+
+### EM (Expectation Maximization) - Algorithm
+
+**Algorithm:**
+
+1. Initialize Gaussian distributions
+
+
+
+
+
     
