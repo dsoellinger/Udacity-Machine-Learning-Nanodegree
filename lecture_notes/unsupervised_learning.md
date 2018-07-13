@@ -175,12 +175,126 @@ The area between $\mu - 3\sigma$ and $\mu + 3\sigma$ contains 99% of the points.
 
 ### EM (Expectation Maximization) - Algorithm
 
-**Algorithm:**
+**Random variables:**
 
-1. Initialize Gaussian distributions
+- $Z$ ... Hidden variable. Distribution selector
+- $X_i$ ... A normal distribution described by $\mu$, $\Sigma$
+
+$P(Z=i)$ ... Probability that we encounter distribution $i$  
+$P(X=x|Z=i)$ = $p_{X,Z}(x,z_i)$ ... Probability that we encounter sample $x$ in the distribution $i$.
+
+**What is the chance that we encounter sample $x$?**
+
+$p_{X,Z}(x,z_i) = p_{X|Z}(x,z_i) \cdot P(Z=i)$
+
+$p(x) = \sum_{i=1}^c p_{X|Z}(x,z_i) \cdot P(Z=i)$
 
 
+**Finding the correct parameters**
+
+We now need to estimate the parameters $\mu$, $\sigma$ as well as the $Z$ (the assignment of every point to a distribution).
+
+$ln(X|\mu,\sigma,\pi) = \sum_{n=1}^N ln(p(x_n)) = \sum_{n=1}^N ln(\sum_{i=1}^c p_{X|Z}(x_n,z_i) \cdot P(Z=i))$
+
+**Note:** $\pi$ is the mixing coefficient that weights each Gaussian distribution.
+
+The first idea we could come up with would be a maximum likelihood estimation. However, this does not work since there's no closed form solution to this problem. Hence we need to perform what's called **Expectation Maximization (EM) technique**.
 
 
+#### Algorithm
 
-    
+1. Initialize the means $\mu_i$, covariances $\Sigma_i$ and mixing coefficients $\pi_i$.  
+   Typically initialization is done using k-means clustering.
+   
+2. **Estimation step**  
+   Evaluate the responsibilities for every data point using the current parameter values:
+   
+   $\lambda_i(x) = \frac{\pi_i \cdot N(x|\mu_i,\Sigma_i)}{\sum_{j=1}^c \pi_j \cdot N(x|\mu_j,\Sigma_j)}$
+   
+3. **Maximization step**  
+   Re-estimate the parameters using the current responsibilities:
+   
+   $\mu_i = \frac{\sum_{n=1}^N \lambda_i(x_n) \cdot x_n}{\sum_{n=1}^N \lambda_i(x_n)}$
+   
+   $\Sigma_i = \frac{\sum_{n=1}^N \lambda_i(x_n) \cdot (x_n - \mu_i) \cdot (x_n - \mu_i)^T}{\sum_{n=1}^N \lambda_i(x_n)}$
+   
+   $\pi_i = \frac{1}{N} \sum_{n=1}^N \lambda_i(x_n)$
+   
+4. **Evaluate log likelihood**  
+   If there is no convergence, return to step 2.
+
+#### Advantages / Disadvantages
+
+**Advantages:**
+
+- Soft-Clustering (sample membership of multiple clusters)
+- Cluster shape flexiblity
+
+**Disadvantages:**
+
+- Sensitive to initalization values
+- Possible to converge to a local optimum
+- Slow convergence rate
+
+## Cluster analysis process
+
+<img src="images/cluster_analysis_process.png" width="400px" />
+
+**Feature selection:**  
+Choosing distinguishing features from a set o candidates. In other words, we select the best ones.
+
+**Feature extraction:**  
+Transform the data to generate more useful features. For instance, by applying PCA
+
+**Clustering validation selection and tuning:**  
+Select a clustering method and proxiimity measure (e.g. euclidean distance, cosine distance, pearson correlation)
+
+**Cluster validation:**  
+Use scoring methods to validate the quality of a method. Such scoring methods are also called "indices".
+
+
+#### Cluster validation
+
+
+Cluster validation is the procedure of evaluation the results of a clustering objectively and quantitatively.
+
+We differentiate between three categories of validation indices:
+
+- **External indices:**  
+  External indices can be used if data are labeled.
+- **Internal indices:**  
+  Measure the fit between the data and structure using only the data.
+- **Relative indices:**  
+  Indicate which clustering structure is better in terms of *compactness* and *separability*. Basically all internal indices can be seen as relative indices.
+  
+**Compactness:** Measures how close elements of a cluster are from each other.  
+**Separability:** Measures how far / distinct clusters are from each other.
+
+#### External indices
+
+The following indices can be used if we have a labeled dataset:
+
+- Adjusted Rand index
+- Fawlks and Mallows
+- NMI measure
+- Jaccard
+- F-measure
+- Purity
+
+**Adjusted Rand index**
+
+<img src="images/adjusted_rand_index.png" width="400px" />
+
+#### Internal indices
+
+If we have unlabeled data we can use the so-called *Silhouette coefficient* measure the quality of our clustering.
+
+<img src="images/silhouette_coefficient.png" width="400px" />
+
+**Comparison - Silhouette coefficient for different datasets:**
+
+<img src="images/silhouette_coefficient_comparison.png" width="500px" />
+
+**Note:** Since the Silhouette coefficient look for compact cluster, it fails for ring-shaped structures.
+
+
