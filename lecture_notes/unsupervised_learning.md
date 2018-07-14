@@ -298,3 +298,39 @@ If we have unlabeled data we can use the so-called *Silhouette coefficient* meas
 **Note:** Since the Silhouette coefficient look for compact cluster, it fails for ring-shaped structures.
 
 
+## Feature Scaling
+
+We use feature scaling to make sure that some features won't dominate the result when adding them together.
+
+$x_{new} = \frac{x-x_{min}}{x_{max} - x_{min}}$
+
+
+## Principal Component Analysis (PCA)
+
+PCA is used for dimensionality reduction. It finds a new coordinate by translation and rotation.
+
+- It moves the center of the coordinate system to the center of the data.
+- It moves the x-axis into the principal axis of variation (the axis where we see most variation)
+- Further axis become orthogonal axis of variation
+
+Basically, PCA is driven by the assumption that there is a small number of features in our dataset that actually drives the patterns. Out of these feature we then try to form *composite features* that more directly probe the underlying phenomenon.
+
+<img src="images/pca_example.png" width="250px" />
+
+#### How to find the principal component?
+
+We choose the principal components to be the direction that has the *largest variance* since it retains the maximum amount of information in the original data.  
+This is simply because it minimizes the information loss. We can see the *information loss* as the *distance between a feature and the hyperplane*.
+
+#### Latent variables
+
+Latten (hidden) variables are cannot be measured directly, but the are somehow driving the phenomenon behind the scenes. For instance, the size of an house might be a good indicator for its price. However, the size cannot be measured directly. Instead, it's a combination of square footage and the number of rooms.
+
+
+#### When should we use PCA?
+
+- Latent features driving the patterns in data
+- Dimensionality reduction  
+  - Visualize high-dimensional data
+  - Reduce noise (by throwing away the less important principal components)
+  - Make other algorithms (regression, classification) work better for fewer inputs
