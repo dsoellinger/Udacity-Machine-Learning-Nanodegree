@@ -53,5 +53,23 @@ $0.02$ ... At every time step the agent receives some positive award if the huma
 
 The question we are going to answer in this section is whether it's enough to maximize the reward at each time step or if it's always necessary to look at the commutative sum.
 
-Let's try to understand this using the walking robot example. If the robot only looked at the reward at a single time step, he would simply try to move as fast as possible without falling immediately. That could work well in the short term. However, it's possible that that the agent learns a movement that makes him move quickly, but forces him to fall in a short time. Hence, the individual award might be high, but the commulative award is still small meaning that the agent can't walk.  
+Let's try to understand this using the walking robot example. If the robot only looked at the reward at a single time step, he would simply try to move as fast as possible without falling immediately. That could work well in the short term. However, it's possible that that the agent learns a movement that makes him move quickly, but forces him to fall in a short time. Hence, the individual award might be high, but the comulative award is still small meaning that the agent can't walk.  
 Therefore, we always need to look at short term and long term consequences.
+
+## Discounted reward
+
+If we look at a time step $t$ we will notice that all the rewards in the past have already been decided. The sum of rewards is called **return**. Only future rewards are in the agents control.
+
+At time step $t$ the agent picks $A_t$ to maximize the return (expected) $G_t$.
+
+$G_t = R_{t+1} + R_{t+2} + R_{t+3} + ...$
+
+In case of **discounted rewards** we want time steps that occurred earlier in time to have a much greater weight.
+
+${G_t}_{discount} = R_{t+1} + 0.9 \cdot R_{t+2} + 0.81 \cdot R_{t+3} + ...$
+
+We often write it like... 
+
+${G_t}_{discount} = R_{t+1} + \gamma \cdot R_{t+2} + \gamma^2 \cdot R_{t+3} + \gamma^3 R_{t+4}...$ where $\gamma \in [0,1]$
+
+**Note:** The larger $\gamma$ gets, the more we care about the future (try it by plugging in values for $\gamma$)
