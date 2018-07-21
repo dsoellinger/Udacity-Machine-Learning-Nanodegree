@@ -51,20 +51,21 @@ $0.02$ ... At every time step the agent receives some positive award if the huma
 
 ## Cumulative reward
 
-The question we are going to answer in this section is whether it's enough to maximize the reward at each time step or if it's always necessary to look at the commutative sum.
+The question we are going to answer in this section is whether it's enough to maximize the reward at each time step or if it's always necessary to look at the **cumulative sum**.
 
-Let's try to understand this using the walking robot example. If the robot only looked at the reward at a single time step, he would simply try to move as fast as possible without falling immediately. That could work well in the short term. However, it's possible that that the agent learns a movement that makes him move quickly, but forces him to fall in a short time. Hence, the individual award might be high, but the comulative award is still small meaning that the agent can't walk.  
+Let's try to understand this using the walking robot example. If the robot only looked at the reward at a single time step, he would simply try to move as fast as possible without falling immediately. That could work well in the short term. However, it's possible that that the agent learns a movement that makes him move quickly, but forces him to fall in a short time. Hence, the individual award might be high, but the cumulative award is still small meaning that the agent can't walk.  
 Therefore, we always need to look at short term and long term consequences.
 
 ## Discounted reward
 
 If we look at a time step $t$ we will notice that all the rewards in the past have already been decided. The sum of rewards is called **return**. Only future rewards are in the agents control.
 
-At time step $t$ the agent picks $A_t$ to maximize the return (expected) $G_t$.
+Since the events in the future are the ones that the agent can still decide, we really care about maximising the **expected** return. In other words, we can say that:  
+At time step $t$ the agent takes an action $A_t$ that maximizes the **expected** return $G_t$.
 
 $G_t = R_{t+1} + R_{t+2} + R_{t+3} + ...$
 
-In case of **discounted rewards** we want time steps that occurred earlier in time to have a much greater weight.
+In case of **discounted rewards** we want give a much greater weight to steps the occurred much earlier in time.
 
 ${G_t}_{discount} = R_{t+1} + 0.9 \cdot R_{t+2} + 0.81 \cdot R_{t+3} + ...$
 
@@ -72,4 +73,39 @@ We often write it like...
 
 ${G_t}_{discount} = R_{t+1} + \gamma \cdot R_{t+2} + \gamma^2 \cdot R_{t+3} + \gamma^3 R_{t+4}...$ where $\gamma \in [0,1]$
 
+$\lambda$ is called the **discount rate**
+
+By choosing $\lambda$ appropriately, we can decide how far we the agent should look into the future.
+
 **Note:** The larger $\gamma$ gets, the more we care about the future (try it by plugging in values for $\gamma$)
+
+**But what is the initiation behind that?**  
+It's because events that occur soon are probably more predictable.  
+Let's illustrate it by means of an example. Let's imagine somebody tells you that he is going to give you a marshmallow right now. Furthermore, he also tells you that he will probably give you one tomorrow as well. Of course, you would immediately take the marshmallow you get today. So, whatever today's marshmallow is worth to you, tomorrow's marshmallow is probably only worth a percentage of that to you.
+
+## Markov Decision Process
+
+A (finite) Markov Decision Process is defined by:
+
+- a (finite) set of states $S$
+- a (finite) set of actions $A$
+- a (finite) set of rewards $R$
+- the one-step dynamics of the environment  
+  $p(s',r|s,a) = \mathbb{P}(S_{t+1} = s', R_{t+1}=r|S_t=s,A_t=a)$ for all $s$,$s'$,$a$ and $r$
+- a discount rate $\lambda \in [0,1]$
+
+<img src="images/markov_example.png" width="300px" />
+
+
+**How do we encode the solution to a problem?**  
+So far, we've learned that a MDP comprises of states and actions. In every state we can take a certain action and this action will take us into another state. Formally, we can see this as a mapping $\pi: S \rightarrow A$. Such a mapping is also called a **policy**. So, a policy simple tells for every state which action we take next. 
+
+To be precise we should differ between **stochastic policies** and **deterministic policies**. Stochastic policies allow to choose actions randomly.
+
+**Deterministic policy:**  
+$\pi: S \rightarrow A$
+
+**Stochastic policy:**  
+$\pi: S \times A \rightarrow [0,1]$
+
+$\pi(a|s) = \mathbb{P}[A_t=a|S_t=s]$
