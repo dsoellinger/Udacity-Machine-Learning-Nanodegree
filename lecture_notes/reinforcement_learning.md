@@ -97,7 +97,7 @@ A (finite) Markov Decision Process is defined by:
 <img src="images/markov_example.png" width="300px" />
 
 
-**How do we encode the solution to a problem?**  
+### How do we encode the solution to a problem?
 So far, we've learned that a MDP comprises of states and actions. In every state we can take a certain action and this action will take us into another state. Formally, we can see this as a mapping $\pi: S \rightarrow A$. Such a mapping is also called a **policy**. So, a policy simple tells for every state which action we take next. 
 
 To be precise we should differ between **stochastic policies** and **deterministic policies**. Stochastic policies allow to choose actions randomly.
@@ -109,3 +109,39 @@ $\pi: S \rightarrow A$
 $\pi: S \times A \rightarrow [0,1]$
 
 $\pi(a|s) = \mathbb{P}[A_t=a|S_t=s]$
+
+## State-value function
+
+The state-value function is defined as follows:
+
+$v_{\pi} = \mathbb{E_{\pi}}[G_t|S_t=s]$
+
+So, the state-value function provides us with the expected return given a policy $\pi$ for an agent starting in state $s$.
+
+## Bellman equations
+
+We saw that the value of any state in a MDP can be calculated as the sum of the immediate reward and the (discounted) value of the next state.
+
+So, for a given policy $\pi$ the expected value of the return starting in state $s$ is simply: $v_{\pi} = \mathbb{E_{\pi}}[G_t|S_t=s] = R_{t+1} + R_{t+2} + ...$.
+
+Furthermore, it's important to see that this is equivalent to: $v_{\pi} = \mathbb{E_{\pi}}[G_t|S_t=s] = R_{t+1} + R_{t+2} + ... = \mathbb{E_{\pi}}[R_{t+1} + \lambda v_{\pi}(S_{t+1})|S_t=s]$
+
+An equation in this form (immediate reward + discounted value of the state the state that follows) is called a **Bellman equation**.
+
+## Optimality
+
+$\pi' \geq \pi$ if and only if $v_{\pi'}(s) \geq v_{\pi}(s)$ for all $s \in S$
+
+An **optimal policy** $\pi_*$ satisfies $\pi_* \geq \pi$ for all $\pi$.
+
+## Action-value function
+
+The action-value function is similar to the state-value function. However, the state-value function yields the expected return if the agent starts in state $s$, takes an action $a$ and then follows the policy for all future time steps.
+
+The action-value function is typically denoted by $q$. It's also true that $v_{\pi}(s) = q_{\pi}(s,\pi(s))$ holds for all $s \in S$.
+
+$q_{\pi}(s,a) = \mathbb{E}_{\pi}[G_t|S_t=s,A_t=a]$ 
+
+All optimal policies have the same action-value function $q_*$ called the **optimal action-value function**.
+
+<img src="images/action_value_function.png" width="350px" />
