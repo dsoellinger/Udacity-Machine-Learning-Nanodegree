@@ -145,3 +145,46 @@ $q_{\pi}(s,a) = \mathbb{E}_{\pi}[G_t|S_t=s,A_t=a]$
 All optimal policies have the same action-value function $q_*$ called the **optimal action-value function**.
 
 <img src="images/action_value_function.png" width="350px" />
+
+## Dynamic Programming
+
+**Dynamic programming** denotes a simplification of the reinforcement learning setting. We assume that the agent has full knowledge of environment (Markov decision process) that characterises the environment. Therefore, this is much easier than the reinforcement learning setting, where the agent initially knows nothing about how the environment decides state and reward and must learn entirely from interaction how to select actions.)
+
+## Iterative method
+
+Let's say we want to evaluate the state-value function of a *stochastic* policy of the following example:
+
+<img src="images/iterative_method_example.png" width="200px" />
+
+As we know, stochastic policies deal with probabilities. Every action we take in a state has a certain probability. For simplicity, let's assume that every state has a probability of 50%.
+
+$\pi(right|s_1) = 0.5$  
+$\pi(down|s_1) = 0.5$  
+$\pi(left|s_2) = 0.5$  
+$\pi(down|s_2) = 0.5$  
+$\pi(up|s_3) = 0.5$  
+$\pi(right|s_3) = 0.5$
+
+Hence, we can calculate the expected return using the state-value function:
+
+$v_{\pi}(s_1) = 0.5 \cdot (-1 + v_{\pi}(s_2)) + 0.5 \cdot (-3 + v_{\pi}(s_3))$  
+$v_{\pi}(s_2) = 0.5 \cdot (-1 + v_{\pi}(s_1)) + 0.5 \cdot (5 + v_{\pi}(s_4))$  
+$v_{\pi}(s_3) = 0.5 \cdot (-1 + v_{\pi}(s_1)) + 0.5 \cdot (5 + v_{\pi}(s_4))$  
+$v_{\pi}(s_4) = 0$
+
+Finally, after solving the system of equations we get:
+
+$v_{\pi}(s_1) = 0$  
+$v_{\pi}(s_2) = 2$  
+$v_{\pi}(s_3) = 2$  
+$v_{\pi}(s_4) = 0$
+
+**What's the problem with this approach?**  
+Calculating the expected return for every state wasn't difficult in this example. However, if the state space grows, solving such a system of equations directly becomes increasingly difficult. We, therefore, prefer an iterative approach which we are going to discuss now.
+
+**Solving the example by means of an iterative approach**  
+We first start by setting the return of every state to 0.
+
+Next, we take the state-value functions we had before and use them to guess the return of the corresponding state.
+
+
