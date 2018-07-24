@@ -185,6 +185,42 @@ Calculating the expected return for every state wasn't difficult in this example
 **Solving the example by means of an iterative approach**  
 We first start by setting the return of every state to 0.
 
-Next, we take the state-value functions we had before and use them to guess the return of the corresponding state.
+Next, we take the state-value functions we had before and use them to guess the return of the corresponding state. We start with the state-function for state $s_1$
+
+$V(s_1) = 0.5 \cdot (-1 + V(s_2)) + 0.5 \cdot (-3 + V(s_3))$  
+
+After, plugging in our current estimates we get:
+
+$V(s_1) = 0.5 \cdot (-1 + 0) + 0.5 \cdot (-3 + 0) = -2$  
+
+We continue with state $s_2$:
+
+$V(s_2) = 0.5 \cdot (-1 + V(s_1)) + 0.5 \cdot (5 + V(s_4))$  
+$V(s_2) = 0.5 \cdot (-1 + -2) + 0.5 \cdot (5 + 0) = 1$ 
+
+And, finally, we do the same for $s_3$:
+
+$V(s_3) = 0.5 \cdot (-1 + V(s_1)) + 0.5 \cdot (5 + V(s_4))$  
+$V(s_3) = 0.5 \cdot (-1 + -2) + 0.5 \cdot (5 + 0) = 1$ 
+
+We keep updating the return for every state until there's no change. This is the key idea behind an algorithm called **Iterative policy evaluation**.
+
+> **Iterative policy evaluation**
+> 
+> **Input:** MDP, policy $\pi$  
+> **Output:** state-value function
+> 
+> V(s) = 0 for all $s \in S^+$
+> 
+> **repeat until $\delta < \theta$:**  
+> $\hspace{0.5cm}$ $\Delta = 0$  
+> 
+> $\hspace{0.5cm}$ **for** $s \in S$:  
+> $\hspace{1cm}$ $v = V(s)$  
+> $\hspace{1cm}$ $V(s) = \sum_{a \in A(s)} \pi(a|s) \sum_{s' \in S, r \in R} p(s',r|s,a)(r + \lambda V(s'))$  
+> $\hspace{1cm}$ $\Delta = max(\Delta, |v-V(s)|)$
+> 
+> return $V$
+
 
 
