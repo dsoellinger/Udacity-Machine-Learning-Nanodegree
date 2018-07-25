@@ -150,7 +150,11 @@ All optimal policies have the same action-value function $q_*$ called the **opti
 
 **Dynamic programming** denotes a simplification of the reinforcement learning setting. We assume that the agent has full knowledge of environment (Markov decision process) that characterises the environment. Therefore, this is much easier than the reinforcement learning setting, where the agent initially knows nothing about how the environment decides state and reward and must learn entirely from interaction how to select actions.)
 
-## Iterative method
+## Iterative policy evaluation
+
+Iterative policy evaluation is an algorithm used in the dynamic programming setting to estimate the state-value function $v_{\pi}$ corresponding to a policy $\pi$. In this approach, a Bellman update is applied to the value function estimate until the changes to the estimate are nearly imperceptible.
+
+**Basic idea**
 
 Let's say we want to evaluate the state-value function of a *stochastic* policy of the following example:
 
@@ -221,6 +225,64 @@ We keep updating the return for every state until there's no change. This is the
 > $\hspace{1cm}$ $\Delta = max(\Delta, |v-V(s)|)$
 > 
 > return $V$
+
+
+## Estimation of action values
+
+In the dynamic programming setting, it is possible to quickly obtain the action-value function $q_{\pi}$ from the state-value function $v_{\pi}$ with the equation: $q_{\pi}(s,a) = \sum_{s' \in S, r \in R} p(s',r|s,a) \cdot (r + \gamma V(s'))$
+
+> **Estimation of action values**
+> 
+> **Input:** state-value function V  
+> **Output:** action-value function Q
+> 
+> **for $s \in S$:**  
+> $\hspace{0.5cm}$ **for $ a \in A(s)$:**  
+> $\hspace{1cm} Q(s,a) = \sum_{s' \in S, r \in R} p(s',r|s,a) \cdot (r + \gamma V(s'))$  
+> 
+> return $Q$
+
+
+## Policy improvement
+
+Policy improvement takes an estimate V of the action-value function $v_{\pi} $ corresponding to a policy $\pi$, and returns an improved (or equivalent) policy $\pi'$, where $\pi' \geq \pi$.  
+The algorithm first constructs the action-value function estimate $Q$. Then, for each state $s \in S$, you need only select the action $a$ that maximizes $Q(s,a)$. In other words, $\pi'(s) = \text{argmax}_{a \in A(s)} Q(s,a)$ for all $s \in S$.
+
+> **Policy Improvement**
+> 
+> **Input:** MDP, value function V  
+> **Output:** policy $\pi'$
+> 
+> **for** $s \in S$  
+> $\hspace{0.5cm}$ **for** $a \in A(s)$  
+> $\hspace{1cm}$ $Q(s,a) = \sum_{s' \in S, r \in R} p(s',r|s,a) \cdot (r + \gamma V(s'))$  
+> $\hspace{0.5cm}$ $\pi'(s) = \text{argmax}_{a \in A(s)} Q(s,a)$
+> 
+> **return** $\pi'$
+
+
+## Policy iteration
+
+Policy iteration is an algorithm that can solve an MDP in the dynamic programming setting. It proceeds as a sequence of policy evaluation and improvement steps, and is guaranteed to converge to the optimal policy (for an arbitrary finite MDP).
+
+> **Policy iteration**
+> 
+> **Input:** MDP, small positive number $\theta$  
+> **Output:** policy $\pi \approx \pi_*$
+> 
+> Initialize $\pi$ arbitrarily (e.g. $\pi(a|s) = \frac{1}{|A(s)|}$ for all $s \in S$ and $a \in A(s)$) 
+> 
+> policy-stable = false
+> 
+> **repeat**  
+> $\hspace{0.5cm}$ $V$ = Policy-Evaluation(MDP,$\pi$,$\theta$)  
+> $\hspace{0.5cm}$ $\pi'$ = Policy-Improvement(MDP,$\pi$,$\theta$)  
+> $\hspace{0.5cm}$**if** $\pi = \pi'$  
+> $\hspace{1cm}$ policy-stable = true  
+> $\hspace{0.5cm}\pi = \pi'$  
+> **until** policy-stable = true
+> 
+> **return** $\pi$
 
 
 
