@@ -285,4 +285,59 @@ Policy iteration is an algorithm that can solve an MDP in the dynamic programmin
 > **return** $\pi$
 
 
+## Truncated policy iteration
 
+**Truncated policy iteration** is an algorithm used in the dynamic programming setting to estimate the state-value function $v_\pi$ corresponding to a policy $\pi$. In this approach, the evaluation step is stopped after a fixed number of sweeps through the state space. We refer to the algorithm in the evaluation step as **truncated policy evaluation**.
+
+> **Truncated policy evaluation**
+> 
+> **Input:** MDP, policy $\pi$, value function $V$, positive integer max-iterations  
+> **Output:** $V \approx v_{\pi}$
+> 
+> counter = 0  
+> **while** counter < max-iterations  
+> $\hspace{0.5cm}$**for** $s \in S$  
+> $\hspace{1cm}$ $V(s) = \sum_{a \in A(s)} \pi(a|s) \sum_{s' \in S, r \in R} p(s',r|s,a) \cdot (r + \gamma V(s'))$  
+> $\hspace{0.5cm}$counter = counter + 1
+> 
+> **return** $V$
+
+> **Truncated policy iteration**
+> 
+> **Input:** MDP, positive integer max-iterations, small positive number $\Theta$  
+> **Output:**  policy $\pi \approx \pi_*$
+> 
+> Initialize $V$ arbitrarily (e.g. $V(s) = 0$ for all $s \in S^+$)  
+> Initialize $\pi$ arbitrarily (e.g. $\pi(a|s) = \frac{1}{|A(s)|}$ for all $s \in S$ and $a \in A(s)$)
+> 
+> **do**  
+> $\hspace{0.5cm}$ $\pi$ = Policy-Improvement(MDP,$V$)  
+> $\hspace{0.5cm}$ $V_{old} = V$  
+> $\hspace{0.5cm}$ $V$ = Truncated-Policy-Evaluation(MDP, $\pi$, $V$, max-iterations)  
+> **while** $max_{s \in S} |V(s) - V_{old}(s)| < \Theta$
+> 
+> **return** $\pi$
+
+
+## Value iteration
+
+Value iteration is an algorithm used in the dynamic programming setting to estimate the state-value function $v_\pi$ corresponding to a policy $\pi$. In this approach, each sweep over the state space simultaneously performs policy evaluation and policy improvement.
+
+> **Value iteration**
+> 
+> **Input:** MDP, small positive number $\Theta$  
+> **Output:** policy $\pi \approx \pi_*$
+> 
+> Initialize $V$ arbitrarily (e.g. $V(s) = $ for all $s \in S^+$)
+> 
+> **do**  
+> $\hspace{0.5cm}$ $\Delta = 0$  
+> $\hspace{0.5cm}$ **for** $s \in S$  
+> $\hspace{1cm}$ $v = V(s)$  
+> $\hspace{1cm}$ $V(s) = max_{a \in A(s)}\sum_{s' \in S, r \in R} p(s',r|s,a) \cdot (r + \gamma V(s'))$  
+> $\hspace{1cm}$ $\Delta = max(\Delta,|v-V(s)|)$  
+> **while** $\Delta < \Theta$
+> 
+> $\pi$ = Policy-Improvement(MDP,$V$)
+> 
+> **return** $\pi$
