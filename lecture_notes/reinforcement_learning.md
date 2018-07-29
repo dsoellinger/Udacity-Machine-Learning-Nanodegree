@@ -1,6 +1,8 @@
 # Reinforcement Learning
 
-## How does the reinforcement setting look like?
+## RL Framework
+
+### How does the reinforcement setting look like?
 
 Reinforcement learning is all about learning from try and error. The learning framework can be described by an **agent** learning to interact with an **environment**. We assume that time involves in discrete time steps.
 At the initial time step, the agent observes the environment. Then, it must select an appropriate action. In the next step (in response to the agent's action) the environment presents a new situation to the agent. It also provides the agent with some kind of reward. In response, the agent must choose an action.
@@ -9,13 +11,13 @@ The goal is to take actions that **maximize** the **expected cumulative reward**
 
 <img src="images/rl_setting.png" width="350px" />
 
-## Episodic and Continuing Tasks
+### Episodic and Continuing Tasks
 
 If a problem has a well-defined ending point we call it an **episodic tasks**. For example, a chess game has a finite number of moves. The sequence of interactions is typically called an **episode**. It's always able to start from scratch like it's being reborn in the environment, but with the added knowledge from the past life.
 
 **Continuing tasks** are ones that never end. For example, an algorithm that buys stocks and response to the financial market. In this case, the agent lives forever and it has to choose actions while simultaneously interacting with the environment.
 
-## Rewards hypothesis
+### Rewards hypothesis
 
 The term "reinforcement" originally comes from behavioral science. It refers to a stimulus that is delivered immediately after a behavior to make the behavior more likely to occur in the future. 
 
@@ -49,14 +51,14 @@ $0.05 y^2$ ... Tracks whether the body move away from the center of its track. W
 
 $0.02$ ... At every time step the agent receives some positive award if the humanoid has not yet fallen. If the robot falls, the episode terminates meaning that the humanoid missed a opportunity to collect more award.
 
-## Cumulative reward
+### Cumulative reward
 
 The question we are going to answer in this section is whether it's enough to maximize the reward at each time step or if it's always necessary to look at the **cumulative sum**.
 
 Let's try to understand this using the walking robot example. If the robot only looked at the reward at a single time step, he would simply try to move as fast as possible without falling immediately. That could work well in the short term. However, it's possible that that the agent learns a movement that makes him move quickly, but forces him to fall in a short time. Hence, the individual award might be high, but the cumulative award is still small meaning that the agent can't walk.  
 Therefore, we always need to look at short term and long term consequences.
 
-## Discounted reward
+### Discounted reward
 
 If we look at a time step $t$ we will notice that all the rewards in the past have already been decided. The sum of rewards is called **return**. Only future rewards are in the agents control.
 
@@ -83,7 +85,7 @@ By choosing $\lambda$ appropriately, we can decide how far we the agent should l
 It's because events that occur soon are probably more predictable.  
 Let's illustrate it by means of an example. Let's imagine somebody tells you that he is going to give you a marshmallow right now. Furthermore, he also tells you that he will probably give you one tomorrow as well. Of course, you would immediately take the marshmallow you get today. So, whatever today's marshmallow is worth to you, tomorrow's marshmallow is probably only worth a percentage of that to you.
 
-## Markov Decision Process
+### Markov Decision Process
 
 A (finite) Markov Decision Process is defined by:
 
@@ -97,7 +99,7 @@ A (finite) Markov Decision Process is defined by:
 <img src="images/markov_example.png" width="300px" />
 
 
-### How do we encode the solution to a problem?
+#### How do we encode the solution to a problem?
 So far, we've learned that a MDP comprises of states and actions. In every state we can take a certain action and this action will take us into another state. Formally, we can see this as a mapping $\pi: S \rightarrow A$. Such a mapping is also called a **policy**. So, a policy simple tells for every state which action we take next. 
 
 To be precise we should differ between **stochastic policies** and **deterministic policies**. Stochastic policies allow to choose actions randomly.
@@ -110,7 +112,7 @@ $\pi: S \times A \rightarrow [0,1]$
 
 $\pi(a|s) = \mathbb{P}[A_t=a|S_t=s]$
 
-## State-value function
+### State-value function
 
 The state-value function is defined as follows:
 
@@ -118,7 +120,7 @@ $v_{\pi} = \mathbb{E_{\pi}}[G_t|S_t=s]$
 
 So, the state-value function provides us with the expected return given a policy $\pi$ for an agent starting in state $s$.
 
-## Bellman equations
+### Bellman equations
 
 We saw that the value of any state in a MDP can be calculated as the sum of the immediate reward and the (discounted) value of the next state.
 
@@ -128,13 +130,13 @@ Furthermore, it's important to see that this is equivalent to: $v_{\pi} = \mathb
 
 An equation in this form (immediate reward + discounted value of the state the state that follows) is called a **Bellman equation**.
 
-## Optimality
+### Optimality
 
 $\pi' \geq \pi$ if and only if $v_{\pi'}(s) \geq v_{\pi}(s)$ for all $s \in S$
 
 An **optimal policy** $\pi_*$ satisfies $\pi_* \geq \pi$ for all $\pi$.
 
-## Action-value function
+### Action-value function
 
 The action-value function is similar to the state-value function. However, the state-value function yields the expected return if the agent starts in state $s$, takes an action $a$ and then follows the policy for all future time steps.
 
@@ -341,3 +343,102 @@ Value iteration is an algorithm used in the dynamic programming setting to estim
 > $\pi$ = Policy-Improvement(MDP,$V$)
 > 
 > **return** $\pi$
+
+
+## Monte Carlo methods
+
+We learned that in the dynamic programming setting the agent has full knowledge of the environments dynamics. In real-world problem this is often not the case. Therefore, we need to think of other methods that can find the right policy for solving a problem without knowing the environments dynamics. A way to do this is **Monte Carlo prediction**.
+
+### Predicting state values
+
+First let's recall the problem we are trying to solve. We have an agent interacting with an environment. Time is broken into discrete time steps and at every time steps it receives a reward. If we look at a problem discardable by an *episodic* sequence, the agent always stops at some time step $T$ when it encounters a terminal state.  
+Similar to the DP setting we try to find a policy in order to maximises expected cumulative return $\mathbb{E}_{\pi} = \sum_{t=1}^T R_t$.
+
+In the DP setting we simply estimated the expected cumulative return using the state-value function $v_{\pi}$. This was is since we knew the environments dynamics. However, as this is not the case in the MC setting anymore, we need to find a different strategy.
+
+If we use a given policy $\pi$ to estimate $v_{\pi}$ by generating episodes based on $\pi$, we call this an **on-policy method**. On the other hand, there exist so-called **off-policy methods**  which generate episodes based on a policy $b$ where $b \neq \pi$. We then use the generated episodes (based on policy $b$) to estimate $v_{\pi}$.
+
+**Example:**
+
+Let's assume we are working with episodic tasks an the MDP has three states.
+
+$S^+ = \{X,Y,Z\}$ $\hspace{1cm}$ $Z$ is a terminal state
+
+Furthermore, we can take two actions. Up or down.
+
+$A = \{Up, Down \}$
+
+We know want to determine the state-value function $v_{_\pi}$ where $\pi$ is ...
+
+$\pi(X) = Down$  
+$\pi(Y) = Up$
+
+We now can calculate the return for various episodes (different initial states).
+
+#### Example: Estimating $v_{\pi}(X)$:
+
+**Episode 1**  
+**X**, Up, -2, Y, Down, 0, Y, Down, 3, Z $\hspace{1cm}\rightarrow\hspace{1cm}$ -2 + 0 + 3 = 1
+
+**Episode 2**  
+Y, Down, 2, Y, Down, 1, Y, Down, 0, Z
+
+**Episode 3**  
+Y, Down, 1, **X**, Up, -3, Y, Down, 3, Z $\hspace{1cm}\rightarrow\hspace{1cm}$ -3 + 3 = 0
+
+Finally, we simply calculate the average discounted return and use this as an estimate for $v_{\pi}(X)$.  
+In our case $v_{\pi} = \frac{-2+0+3 + (-3) + 3}{2} = 0.5$
+
+#### Example: Estimating $v_{\pi}(Y)$:
+
+As we can see the status $Y$ is visited multiple times, hence it's not immediately clear how to calculate the return. In fact, we have to options:
+
+- **Variant 1:** Only consider the first states and average them
+- **Variant 2:** Follow all visits and average them
+
+#### Variante 1:
+
+**Episode 1**  
+X, Up, -2, **Y**, Down, 0, Y, Down, 3, Z $\hspace{1cm}\rightarrow\hspace{1cm}$ 0 + 3 = 3
+
+**Episode 2**  
+**Y**, Down, 2, Y, Down, 1, Y, Down, 0, Z $\hspace{1cm}\rightarrow\hspace{1cm}$ 2 + 1 + 0 = 3
+
+**Episode 3**  
+**Y**, Down, 1, X, Up, -3, Y, Down, 3, Z $\hspace{1cm}\rightarrow\hspace{1cm}$ 1 - 3 + 3 = 1
+
+$v_{\pi}(Y) = \frac{3+3+1}{3} = \frac{7}{3}$
+
+#### Variante 2:
+
+
+**Episode 1**  
+X, Up, -2, **Y**, Down, 0, **Y**, Down, 3, Z $\hspace{1cm}\rightarrow\hspace{1cm}$ 0 + 3 = 3; 3 = 3
+
+**Episode 2**  
+**Y**, Down, 2, **Y**, Down, 1, **Y**, Down, 0, Z $\hspace{1cm}\rightarrow\hspace{1cm}$ 2 + 1 + 0 = 3; 1 + 0 = 1; 0 = 0
+
+**Episode 3**  
+**Y**, Down, 1, X, Up, -3, **Y**, Down, 3, Z $\hspace{1cm}\rightarrow\hspace{1cm}$ 1 -3 +3 = 1; 3 = 3
+
+$v_{\pi}(Y) = \frac{14}{7} = 2$
+
+
+> **First-Visit MC prediction**
+> 
+> **Input:** Policy $\pi$, positive integer num-episodes  
+> **Output:** value function $V$ 
+> 
+> Initialize $N(s) = 0$ for all $s \in S$  
+> Initialize returns-sum(s) = 0 for all $s \in S$
+> 
+> **for** i=1 to num-episodes  
+> $\hspace{0.5cm}$ Generate an episode $S_0, A_0, R_0, R_1, ..., S_T$ using $\pi$  
+> $\hspace{0.5cm}$ **for** t=0 to T-1  
+> $\hspace{1cm}$  **if** $S_t$ is a first visit (with return $G_t$)  
+> $\hspace{1.5cm}$  $N(S_t) = N(S_t) + 1$  
+> $\hspace{1.5cm}$  returns-sum($S_t$) = returns-sum($S_t$) + $G_t$
+> 
+> $V(s)$ = returns-sum(s) / N(s) for all $s \in S$
+> 
+> **return** V 
