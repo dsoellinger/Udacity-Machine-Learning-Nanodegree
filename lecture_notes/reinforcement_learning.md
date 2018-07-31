@@ -519,5 +519,26 @@ Even though convergence is not guaranteed by the mathematics, you can often get 
 - using fixed $\epsilon$, or
 - letting $\epsilon_i$ decay to a small positive number, like 0.1.
 
-This is because one has to be very careful with setting the decay rate for $\epsilon$; letting it get too small too fast can be disastrous. If you get late in training and $\epsilon$ is really small, you pretty much want the agent to have already converged to the optimal policy, as it will take way too long otherwise for it to test out new actions!
+This is because one has to be very careful with setting the decay rate for $\epsilon$; letting it get too small too fast can be disastrous. If you get late in training and $\epsilon$ is really small, you pretty much want the agent to have already converged to the optimal policy, as it will take way too long otherwise for it to test out new actions.
+
+> **GLIE MC control**
+> 
+> **Input:** positive integer num-episodes  
+> **Output:**  policy $\pi$
+> 
+> Initialize Q(s,a) = 0 for all $s \in S$, $a \in A(s)$  
+> Initialize N(s,a) = 0 for all $s \in S$, $a \in A(s)$  
+> 
+> **for** i=1 to num-episodes  
+> $\hspace{0.5cm}$ $\epsilon = \frac{1}{i}$  
+> $\hspace{0.5cm}$ $\pi = \epsilon-greedy(Q)$  
+> 
+> $\hspace{0.5cm}$ Generate an episode $S_0, A_0, R_0, R_1, ..., S_T$ using $\pi$  
+> 
+> $\hspace{0.5cm}$ **for** t=0 to T-1  
+> $\hspace{1cm}$  **if** $(S_t,A_t)$ is a first visit (with return $G_t$)  
+> $\hspace{1.5cm}$  $N(S_t, A_t) = N(S_t, A_t) + 1$  
+> $\hspace{1.5cm}$  $Q(S_t, A_t) = Q(S_t, A_t) + \frac{1}{N(S_t,A_t}(G_t - Q(S_t, A_t))$ 
+> 
+> **return** $\pi$
 
