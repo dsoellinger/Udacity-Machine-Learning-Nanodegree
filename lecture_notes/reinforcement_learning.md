@@ -442,3 +442,82 @@ $v_{\pi}(Y) = \frac{14}{7} = 2$
 > $V(s)$ = returns-sum(s) / N(s) for all $s \in S$
 > 
 > **return** V 
+
+### Estimating action-values
+
+Remember the formula for calculating the action-value function in the dynamic programming setting:  
+
+$q_{\pi}(s,a) = \sum_{s' \in S, r \in R} p(s',r|s,a)(r + \lambda v_{\pi}(s'))$
+
+Unfortunately, it's not possible to calculate the action-value function as we did in the dynamic programming setting since the one-step dynamics ($p(s',r|s,a)$) of our environment are unknown.
+
+To overcome this problem we can apply a similar idea as we did for the state-value function. We look at every state-action pair and calculate the average return for corresponding pairs.
+
+#### Example:
+
+**Episode 1**  
+**X, Up**, -2, Y, Down, 0, Y, Down, 3, Z $\hspace{1cm}\rightarrow\hspace{1cm}$ -2 + 0 + 3 = 1;
+
+**Episode 2**  
+Y, Down, 2, Y, Down, 1, Y, Down, 0, Z 
+
+**Episode 3**  
+Y, Down, 1, **X, Up**, -3, Y, Down, 3, Z $\hspace{1cm}\rightarrow\hspace{1cm}$ -3 +3 = 0
+
+Hence, we get: $q_{\pi}(X,Up) = \frac{1}{2}$
+
+**What to do if the same state-action pair occurs multiple times in the same episode?**  
+Similar to the state-value function we can either apply the **first-visit approach** or the **every-visit** approach.
+
+**Note:** Our algorithm will only be able to estimate the action-value for pairs "supported" by the given policy. For instance, our policy does only allow $\pi(X) = Up$ and $\pi(Y) = Down$. So, we won't be able to estimate the state value function for $q_{\pi}(X,Down)$ or $q_{\pi}(Y,Up)$.
+
+A way to solve this would be to make sure that we don't try to evaluate the action-value function for a deterministic policy. Instead, we work with a stochastic policy.
+
+<img src="images/mc_action_values.png" width="350px" />
+
+> **First-visit MC prediction (for action values)**
+> 
+> **Input:** policy $\pi$, positive integer num-episodes  
+> **Output:**  value function Q
+> 
+> Initialize N(s,a) = 0 for all $s \in S$, $a \in A(s)$  
+> Initialize returns-sum(s,a) = 0 for all $s \in S$, $a \in A(s)$
+> 
+> **for** i=1 to num-episodes  
+> $\hspace{0.5cm}$ Generate an episode $S_0, A_0, R_0, R_1, ..., S_T$ using $\pi$  
+> $\hspace{0.5cm}$ **for** t=0 to T-1  
+> $\hspace{1cm}$  **if** $(S_t,A_t)$ is a first visit (with return $G_t$)  
+> $\hspace{1.5cm}$  $N(S_t, A_t) = N(S_t, A_t) + 1$  
+> $\hspace{1.5cm}$  returns-sum($S_t$, $A_t$) = returns-sum($S_t$, $A_t$) + $G_t$
+> 
+> $Q(s,a)$ = returns-sum(s,a) / N(s,a) for all $s \in S$
+> 
+> **return** Q 
+
+### Monte Carlo control
+
+Our Monte Carlo control algorithm will draw inspiration from generalized policy iteration. We start with the policy evaluation step described in above section. One we have a good estimate for our action-value function we can focus ourselves finding a better policy. Unfortunately, the first-visit MC prediction algorithm takes a long time to run and it might make sense to perform the improvement earlier in the stage. For example, after every individual game of black jack.
+
+At every time step, when the agent selects an action, it bases its decision on past experience with the environment. And, towards minimizing the number of episodes needed to solve environments, our first instinct could be to devise a strategy where the agent always selects the action that it believes (based on its past experience) will maximize return. With this in mind, the agent could follow the policy that is greedy with respect to the action-value function estimate. We examined this approach and saw that it can easily lead to convergence to a sub-optimal policy.
+
+To see why this is the case, note that in early episodes, the agent's knowledge is quite limited (and potentially flawed). So, it is highly likely that actions estimated to be non-greedy by the agent are in fact better than the estimated greedy action.
+
+With this in mind, a successful RL agent cannot act greedily at every time step (that is, it cannot always exploit its knowledge); instead, in order to discover the optimal policy, it has to continue to refine the estimated return for all state-action pairs (in other words, it has to continue to explore the range of possibilities by visiting every state-action pair). That said, the agent should always act somewhat greedily, towards its goal of maximizing return as quickly as possible. This motivated the idea of an $\epsilon$-greedy policy.
+
+We refer to the need to balance these two competing requirements as the Exploration-Exploitation Dilemma. One potential solution to this dilemma is implemented by gradually modifying the value of $\epsilon$ when constructing $\epsilon$-greedy policies.
+
+
+#### Setting the value of $\epsilon$ in theory
+
+It makes sense for the agent to begin its interaction with the environment by favoring **exploration over exploitation**. After all, when the agent knows relatively little about the environment's dynamics, it should distrust its limited knowledge and explore, or try out various strategies for maximizing return. With this in mind, the best starting policy is the equiprobable random policy, as it is equally likely to explore all possible actions from each state. You discovered in the previous quiz that setting $\epsilon$ = 1 yields an $\epsilon$-greedy policy that is equivalent to the equiprobable random policy.
+
+As you read in the above section, in order to guarantee convergence, we must let $\epsilon_i 
+$ decay in accordance with the GLIE conditions. But sometimes "guaranteed convergence" isn't good enough in practice, since this really doesn't tell you how long you have to wait! It is possible that you could need trillions of episodes to recover the optimal policy, for instance, and the "guaranteed convergence" would still be accurate.
+
+Even though convergence is not guaranteed by the mathematics, you can often get better results by either:
+
+- using fixed $\epsilon$, or
+- letting $\epsilon_i$ decay to a small positive number, like 0.1.
+
+This is because one has to be very careful with setting the decay rate for $\epsilon$; letting it get too small too fast can be disastrous. If you get late in training and $\epsilon$ is really small, you pretty much want the agent to have already converged to the optimal policy, as it will take way too long otherwise for it to test out new actions!
+
