@@ -11,7 +11,7 @@ The goal is to take actions that **maximize** the **expected cumulative reward**
 
 <img src="images/rl_setting.png" width="350px" />
 
-### Episodic and Continuing Tasks
+### Episodic and continuous tasks
 
 If a problem has a well-defined ending point we call it an **episodic tasks**. For example, a chess game has a finite number of moves. The sequence of interactions is typically called an **episode**. It's always able to start from scratch like it's being reborn in the environment, but with the added knowledge from the past life.
 
