@@ -74,4 +74,4 @@ This repository contains project files and lecture notes for Udacity's Machine L
 - **Monte Carlo methods**  
   Predicting state values, estimating action-values, incremental mean, policy evaluation, policy improvement, exploration-exploitation dilemma, GLIE MC control algorithm, constant-alpha GLIE MC control algorithm
 
-**See lecture notes:** [here](5_reinforcement_learning)
+**See lecture notes:** [here](5_reinforcement_learning.pdf)
