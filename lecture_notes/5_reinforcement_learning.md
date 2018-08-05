@@ -710,3 +710,190 @@ where it is now more obvious that $\alpha$ controls how much the agent trusts th
 > $\hspace{1.5cm}$  $Q(S_t, A_t) = Q(S_t, A_t) + \alpha (G_t - Q(S_t, A_t))$ 
 > 
 > **return** $\pi$
+
+
+## Temporal difference learning
+
+We can see temporal difference learning as learning from interaction like humans do meaning that the **agent is not allowed to take a break** for evaluation and improvement. Monte Carlo learning, for example, needed those breaks. In other words, the main idea of TD learning is that if an agent is playing chess, it will always (at every move) be able to estimate the probability that it is winning the game.
+
+### TD(0) prediction
+
+So far, in Monte Carlo learning we updated the state-action values using the following update rule:
+
+$Q(S_t, A_t) = Q(S_t, A_t) + \alpha \cdot (G_t - Q(S_t, A_t))$ 
+
+Similarly, we can come up with an analogous equation to keep track of the state values.
+
+$V(S_t) = V(S_t) + \alpha \cdot (G_t - V(S_t)$
+
+Remember that the idea behind this line is that the value of any state is defined as $v_\pi(s) = \mathbb{E}_\pi[G_t|S_t=s]$.  
+
+Furthermore, $G_t$ is defined as follows: ${G_t} = R_{t+1} + \gamma \cdot R_{t+2} + \gamma^2 \cdot R_{t+3} + \gamma^3 R_{t+4}...$
+
+Next, remember that the Bellman equation tells us that: $\mathbb{E_{\pi}}[G_t|S_t=s] = R_{t+1} + R_{t+2} + ... = \mathbb{E_{\pi}}[R_{t+1} + \lambda v_{\pi}(S_{t+1})|S_t=s]$
+
+The Bellman equation gives us a way to express the value of any state in terms of the values of the states that could potentially follow. So, what we could do is that instead of averaging sampled returns, we average the sampled value of the sum of the immediate reward plus the discounted value of the next state.
+
+$V(S_t) = V(S_t) + \alpha \cdot (R_{t+1} + \lambda v_{\pi}(S_{t+1}) - V(S_t)$
+
+**This allows us to update the state value after every time step. We don't have to wait until the end of the episode to update the values.**
+
+
+#### How to perform an update step
+
+Given we are in state $S_t$ and we use the policy to take an action $A_t$. Based on the environment we will then end up in state $S_{t+1}$ and receive a reward of $R_{t+1}$.  
+We can then use this information to update our value function.
+
+<img src="images/td_0_prediction_update_function.png" width="400px" />
+
+So, what happens is that, when we are in state $S_t$ we only now the value of the current state $V(S_t)$. Once we take the next action we receive additional information. We can use this additional information to express an alternative estimate for the value of the same state in terms of the value of the state that followed. We called this the TD target.
+
+<img src="images/td_0_prediction_intuition.png" width="400px" />
+
+So, what this entire update equation does is find some middle ground between two estimates. $\alpha$ determines which estimate we trust more.
+
+We can see this more clearly by rewriting the update equation to:
+
+$V(S_t) = (1-\alpha) V(S_t) + \alpha \cdot (R_{t+1} + \lambda V(S_{t+1})$
+
+This means that when $\alpha = 1$, we fully rely on the TD-target for our new estimate and totally ignore the previous estimate. If set $\alpha=0$, we completely ignore target and keep the old estimate meaning that our agent won't learn at all.
+
+**Note:** TD(0) tells use that we update the value after every single time step.
+
+> **TD(0) prediction algorithm**
+> 
+> **Input:** policy $\pi$, positive integer num-episodes
+> **Output:**  value function $V$
+> 
+> Initialize $V$ arbitrarily
+> 
+> **for** i=1 to num-episodes  
+> $\hspace{0.5cm}$ Observe $S_0$  
+> $\hspace{0.5cm}$ $t=0$  
+> $\hspace{0.5cm}$ **repeat**  
+> $\hspace{1cm}$  Choose action $A_t$ using policy $\pi$  
+> $\hspace{1cm}$  Take action $A_t$ and observe $T_{t+1}, S_{t+1}$  
+> 
+> $\hspace{1cm}$  $V(S_t) = V(S_t) + \alpha \cdot (R_{t+1} + \lambda V(S_{t+1}) - V(S_t))$  
+> $\hspace{1cm}$  $t = t+1$  
+> $\hspace{0.5cm}$ **until** $S_t$ is terminal
+> 
+> **return** $V$
+
+
+### Action value estimation
+
+So far, we used the following update strategy to improve the estimate for the state-value function:
+
+$V(S_t) = V(S_t) + \alpha \cdot (R_{t+1} + \lambda V(S_{t+1}) - V(S_t))$
+
+To transform this into an update strategy for an action-value function we need to transform this equation into one that relates the values of successive state-action pairs.
+
+<img src="images/td_action_value_1.png" width="400px" />
+
+Hence, we get to following update rule for the action-value estimate.
+
+$Q(S_t,A_t) = Q(S_t,A_t) + \alpha \cdot (R_{t+1} + \lambda Q(S_{t+1},A_{t+1}) - Q(S_t,A_t))$
+
+Then, instead of updating the values after each state is received, we update the value after each action is chosen.
+
+<img src="images/td_action_value_2.png" width="400px" />
+
+### Solving the control problem
+
+So far, for estimating the state-value / action-value function we always used the same policy at every time step. However, to produce a control algorithm we need start gradually changing the policy so that it becomes more optimal at every time step.
+
+Therefore, we will apply an approach that is pretty similar to the Monte Carlo method. At every time step we select a policy that is $\epsilon$-greedy with respect to the current estimate of the action values.
+
+The name of this algorithm is called **Sarsa(0)**.
+
+> **Sarsa(0) algorithm**
+> 
+> **Input:** policy $\pi$, positive integer num-episodes, small positive fraction $\alpha$  
+> **Output:**  value function $Q$ 
+> 
+> Initialize $Q$ arbitrarily
+> 
+> **for** i=1 to num-episodes  
+> $\hspace{0.5cm}$ Observe $\epsilon = \frac{1}{i}$  
+> $\hspace{0.5cm}$ Observe $S_0$  
+> $\hspace{0.5cm}$ Choose action $A_0$ using policy derived from $Q$   
+> $\hspace{0.5cm}$ $t=0$  
+> $\hspace{0.5cm}$ **repeat**  
+> $\hspace{1cm}$  Take action $A_t$ and observe $R_{t+1},S_{t+1}$  
+> $\hspace{1cm}$  Choose action $A_{t+1}$ using policy derived from $Q$  
+> $\hspace{1cm}$  $Q(S_t,A_t) = Q(S_t,A_t) + \alpha \cdot (R_{t+1} + \lambda Q(S_{t+1},A_{t+1}) - Q(S_t,A_t))$  
+> $\hspace{1cm}$  $t = t+1$  
+> $\hspace{0.5cm}$ **until** $S_t$ is terminal
+> 
+> **return** $Q$
+
+
+### Sarsamax (aka Q-learning)
+
+In case of the Salsa(0) algorithm the agent begins by interacting with the environment and receive the first state. It then chooses an action according to a policy and receives a new state / return. Then, again, the agent uses the same policy to pick the next action. After choosing the action, the action-value estimate gets updated. Afterwards, we update the policy given the new $Q$.
+
+Sarsamax instead behaves slightly different. We still begin with the same initial setting. We are in a state as and choose an action according to our policy. However, right after receiving a reward and new state, we do something else. Namely, we are updating the policy before choosing the next action. Instead choosing the action based on the $\epsilon$-greedy policy, we choose it based on the greedy policy.
+
+$Q(S_t,A_t) = Q(S_t,A_t) + \alpha \cdot (R_{t+1} + \lambda \cdot max_{a \in A}Q(S_{t+1},a) - Q(S_t,A_t))$
+
+In Sarsa the update step pushes the action values closer to evaluating whatever $\epsilon$-greedy policy is currently being followed by the agent. Sarsamax instead directly attempts to approximate the optimal value function at every time step.
+
+> **Sarsamax algorithm**
+> 
+> **Input:** policy $\pi$, positive integer num-episodes, small positive fraction $\alpha$  
+> **Output:**  value function $Q$ 
+> 
+> Initialize $Q$ arbitrarily
+> 
+> **for** i=1 to num-episodes  
+> $\hspace{0.5cm}$ Observe $\epsilon = \frac{1}{i}$  
+> $\hspace{0.5cm}$ Observe $S_0$   
+> $\hspace{0.5cm}$ $t=0$  
+> $\hspace{0.5cm}$ **repeat**  
+> $\hspace{1cm}$  Choose action $A_t$ and observe $R_{t+1},S_{t+1}$  
+> $\hspace{1cm}$  Take action $A_{t+1}$ using policy derived from $Q$  
+> $\hspace{1cm}$  $Q(S_t,A_t) = Q(S_t,A_t) + \alpha \cdot (R_{t+1} + \lambda max_aQ(S_{t+1},a) - Q(S_t,A_t))$  
+> $\hspace{1cm}$  $t = t+1$  
+> $\hspace{0.5cm}$ **until** $S_t$ is terminal
+> 
+> **return** $Q$
+
+
+
+### Expected Sarsa
+
+Expected Sarsa is similar to Sarsamax. The only difference is in the update step. While Sarsa chooses the action that maximizes the action-value estimate corresponding to the next state, **expected Sarsa** uses the *expected* value of the next state-action pair where the expectation takes into account that the probability that the agent selects each possible action from the next state. 
+
+> **Expected Sarsa algorithm**
+> 
+> **Input:** policy $\pi$, positive integer num-episodes, small positive fraction $\alpha$  
+> **Output:**  value function $Q$ 
+> 
+> Initialize $Q$ arbitrarily
+> 
+> **for** i=1 to num-episodes  
+> $\hspace{0.5cm}$ Observe $\epsilon = \frac{1}{i}$  
+> $\hspace{0.5cm}$ Observe $S_0$   
+> $\hspace{0.5cm}$ $t=0$  
+> $\hspace{0.5cm}$ **repeat**  
+> $\hspace{1cm}$  Choose action $A_t$ and observe $R_{t+1},S_{t+1}$  
+> $\hspace{1cm}$  Take action $A_{t+1}$ using policy derived from $Q$  
+> $\hspace{1cm}$  $Q(S_t,A_t) = Q(S_t,A_t) + \alpha \cdot (R_{t+1} + \lambda \sum_a \pi(a|S_{t+1})Q(S_{t+1},a) - Q(S_t,A_t))$  
+> $\hspace{1cm}$  $t = t+1$  
+> $\hspace{0.5cm}$ **until** $S_t$ is terminal
+> 
+> **return** $Q$
+
+
+### Analyzing performance 
+
+All of the TD control algorithms we have examined (Sarsa, Sarsamax, Expected Sarsa) converge to the optimal action-value function $q_*$ (and so yield the optimal policy $\pi_*$) if (1) the value of $\epsilon$ decays in accordance with the GLIE conditions, and (2) the step-size parameter $\alpha$ is sufficiently small.
+
+
+The differences between these algorithms are summarized below:
+
+- Sarsa and Expected Sarsa are both on-policy TD control algorithms. In this case, the same ($\epsilon$-greedy) policy that is evaluated and improved is also used to select actions.
+- Sarsamax is an off-policy method, where the (greedy) policy that is evaluated and improved is different from the ($\epsilon$-greedy) policy that is used to select actions.
+- On-policy TD control methods (like Expected Sarsa and Sarsa) have better online performance than off-policy TD control methods (like Sarsamax).
+Expected Sarsa generally achieves better performance than Sarsa.
