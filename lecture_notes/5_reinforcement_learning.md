@@ -555,7 +555,7 @@ We call such a policy an **$\epsilon$-greedy policy**.
 
 > **$\epsilon$-greedy policy**
 > 
-> $\pi(a|s) = \begin{cases} 1 - \epsilon + \frac{\epsilon}{|A(s)|} \hspace{1cm} \text{if } a=argmax_{a' \in A(s)} Q(s,a') \\ \frac{\epsilon}{A(s)} \hspace{1cm} otherwise\end{cases}$
+> $\pi(a|s) = \begin{cases} 1 - \epsilon + \frac{\epsilon}{|A(s)|} \hspace{1cm} \text{if } a=argmax_{a' \in A(s)} Q(s,a') \\ \frac{\epsilon}{|A(s)|} \hspace{1cm} otherwise\end{cases}$
 
 
 $\epsilon$ determines the likelihood of picking a certain action. In other words, the larger $\epsilon$ is, the more likely we are to pick a non-greedy action. We pick the non-greedy action with probability $\epsilon$ and the greedy action with probability $1-\epsilon$.
@@ -897,3 +897,52 @@ The differences between these algorithms are summarized below:
 - Sarsamax is an off-policy method, where the (greedy) policy that is evaluated and improved is different from the ($\epsilon$-greedy) policy that is used to select actions.
 - On-policy TD control methods (like Expected Sarsa and Sarsa) have better online performance than off-policy TD control methods (like Sarsamax).
 Expected Sarsa generally achieves better performance than Sarsa.
+
+
+## Deep reinforcement learning
+
+In deep reinforcement learning refers to approaches that use deep learning to solve reinforcement learning problems. Reinforcement learning is typically characterized by finite MDP (numbers of states and actions is limited). However, in real-world there are so many problems where the number of states/actions is very large or continuous. Deep reinforcement approaches allow us to solve such problems.
+
+### Discrete and continuous spaces
+
+As mentioned before in case of discrete MDPs the state/actions we encounter are finite. Consequently, we can represent any function (e.g. state-value function or action-value function) of states/actions as a dictionary or lookup table.
+
+On the other hand, a continuous space is not restricted to a set of values. Instead it can take a range of values. For such problems we need to modify the algorithms we learned to accommodate continuous spaces. The two main strategies are *discretization* and *function approximation*.
+
+### Discretization
+
+Discretization means that we convert a continuous space into a discrete one.
+For instance, let's consider the position of a vacuum cleaner in a room. We could easiliy discretize its position by rounding. If course, the result might be incorrect, but for some environments discretizing the state space can work well.
+
+<img src="images/discretization_1.png" width="300px" />
+
+**Non-uniform discretization** allows us to divide up the grid into smaller cells where required. It allows us to improve the state representation at places where it matters. This can be done by means of binarization or quad trees.
+
+<img src="images/discretization_2.png" width="300px" />
+
+### Tilde coding
+
+Once we have prior knowledge about the state space, we can manually design an appropriate discretization scheme. However, in case of arbitrary environments we need a more generic method like **tile coding**.  
+In tile coding we overlay multiple grids/tilings over each other. One position $s$ can be represented by the tiles it activates. If we assign a bit to each tile, we can represent the new discretized state as a bit vector with ones where the tile gets activated and zero elsewhere. However, in practice we don't store it as a vector, instead we encode the position as a weighted sum.
+
+$V(s) = \sum_{I=1}^n b_i(s) \cdot w_i$
+
+<img src="images/tile_coding.png" width="300px" />
+
+**Drawbacks:**  
+We have to manually select the tile sizes, offsets, number of tilings, etc. ahead of time. This motivates the idea of **adaptive tile coding** which starts with fairly large tiles and divides them whenever it's appropriate.
+
+> **Tile-coding algorithm**
+> 
+> **for** i=1 to m  
+> $\hspace{0.5cm}$ Initialize tiling i with n/m tiles  
+> $\hspace{0.5cm}$ **for** j=1 to n/m  
+> $\hspace{1cm}$ Initialize tile j with zero weight
+> 
+> **repeat**  
+> $\hspace{0.5cm}$ s = random state from S  
+> $\hspace{0.5cm}$ $\Delta V(s) = max_a[R(s,a) + \lambda V(P(s,a))] - V(s)$  
+> $\hspace{0.5cm}$ **for** i=1 to m  
+> $\hspace{1cm}$w = weight of active-tile(s,i)   
+> $\hspace{1cm} w = w + \frac{a}{m} \Delta V(s)$  
+> **until time epires**
