@@ -920,7 +920,7 @@ For instance, let's consider the position of a vacuum cleaner in a room. We coul
 
 <img src="images/discretization_2.png" width="300px" />
 
-### Tilde coding
+### Tile coding
 
 Once we have prior knowledge about the state space, we can manually design an appropriate discretization scheme. However, in case of arbitrary environments we need a more generic method like **tile coding**.  
 In tile coding we overlay multiple grids/tilings over each other. One position $s$ can be represented by the tiles it activates. If we assign a bit to each tile, we can represent the new discretized state as a bit vector with ones where the tile gets activated and zero elsewhere. However, in practice we don't store it as a vector, instead we encode the position as a weighted sum.
@@ -945,4 +945,67 @@ We have to manually select the tile sizes, offsets, number of tilings, etc. ahea
 > $\hspace{0.5cm}$ **for** i=1 to m  
 > $\hspace{1cm}$w = weight of active-tile(s,i)   
 > $\hspace{1cm} w = w + \frac{a}{m} \Delta V(s)$  
-> **until time epires**
+> **until time expires**
+
+
+### Coarse coding
+
+Coarse coding is similar to tile coding, but uses a sparser set of features to encode the state space.  
+Imagine dropping a bunch of circles on a 2D continuous state space. Then take a position in this space and mark all circles that it belongs to. This can now be encoded as a bit vector with a 1 for those circles and 0 for the rest.  
+Of course, this approach can be applied for higher dimensions as well.
+
+**Important:** Using smaller circles leads to less generalization across the space. The learning has to work a little bit longer, but we get greater effective resolution. Furthermore, it's also possible to adapt the shape of the circles (e.g. make them smaller or wider in a certain dimension) to get a higher/lower resolution in a certain dimension.
+
+<img src="images/coarse_coding.png" width="200px" />
+
+### Function approximation
+
+When the underlying space starts to get more complicated the number of discrete states needed can become very large and we might loose the advantage of discretization. In such a scenario we want to apply what's called **function approximation**. In other words, we want to find a good approximation for our true action-value $q_{\pi}$ or state-value $v_{\pi}$ function.  
+However, as you can imagine, capturing such a function is practically unfeasible expect for very simple problems. Nevertheless, we can try to approximate it.
+
+**Defining an approximation**  
+One way to define such an approximation is by introducing a weight vector $w$.
+
+$v(s,w) = v_{\pi}(s)$   
+$q(s,a,w) = q_{\pi}(s,a)$
+
+Our approximation should convert the state $s$ and parameter vector $w$ into a scalar value. The first thing we need to make sure is that we have a vector representing the state.
+
+$x(s) = \begin{pmatrix} x_1(s) \\ x_2(s) \\ ... \\ x_n(s) \end{pmatrix}$
+
+Now, by multiplying $x(s)$ with $w$ using the dot product we can easily convert this into a scalar value.
+
+$v(s,w) = x(s)^T \cdot w$
+
+In other words, we are trying to approximate the state-value function by means of a linear function.
+
+### Linear function approximation
+
+So far, we haven't discussed how to find the correct values for $w$. In fact, we now turned our problem into a numeric optimization problem that can be solved using gradient descent.
+
+- Value function: $v(s,w) = x(s)^T \cdot w \hspace{4cm} \Delta_w(s,w) = x(s)$  
+- Minimize error: $J(w) = \mathbb{E_{\pi}}[(v_{\pi}(s) - x(s)^T \cdot w)^2]$
+- Error gradient: $\Delta_w J(w) = -2(v_{\pi}(s) - x(s)^T \cdot w) \cdot x(s)$
+- Update rule: $\Delta w = - \alpha \frac{1}{2} \Delta_w J(w) = - \alpha (v_{\pi}(s) - x(s)^T \cdot w) \cdot x(s)$
+
+**Note:** In case of the action-value function we can simply turn our vector $w$ into a matrix.
+
+**Disadvantages of linear function:** We can only represent linear relationships. This approach will fail once our value-function has a non-linear shape.
+
+### Kernel functions
+
+Kernel functions help us to capture non-linear relationships. Remember how we defined our feature vector $x(s)$.
+
+$x(s) = \begin{pmatrix} x_1(s) \\ x_2(s) \\ ... \\ x_n(s) \end{pmatrix}$
+
+By defining a kernel function, for example $x_1(s) = s$, $x_2(s) = s^2$, $x_3(s) = s^3$, etc., we can model a non-linear relationship.
+
+A frequently used kernel activation function is the **radial basis function**.
+
+**Radial basis function:** $\phi_i(s) = e^{- \frac{||s - c_i||^2}{2 \sigma_i^2}}$
+
+### Non-linear function approximation
+
+Even if we apply a non-linear kernel function, the output is still linear with respect to the features. Therefore, to handle such truly non-linear value-functions we need add an additional non-linear activation function.
+
+$v(s,w) = f(x(s)^T \cdot w)$ where $f$ is the activation function. 
