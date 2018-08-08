@@ -1009,3 +1009,94 @@ A frequently used kernel activation function is the **radial basis function**.
 Even if we apply a non-linear kernel function, the output is still linear with respect to the features. Therefore, to handle such truly non-linear value-functions we need add an additional non-linear activation function.
 
 $v(s,w) = f(x(s)^T \cdot w)$ where $f$ is the activation function. 
+
+## Deep Q-Learning
+
+In Deep Q-Learning we apply neural networks to solve reinforcement learning problems. It allows us to solve problems with large and continuous state spaces.
+
+### Neural networks as value functions
+
+We now try to develop a neural network that can represent a problem's value function.
+
+We therefore feed the vector $x(s)$ into a neural network and train it to output $v_{\pi}(s,w)$.
+
+<img src="images/deep_q_learning_neural_network.png" width="350px" />
+
+Such a network can then be train using methods we already know (backpropagation, gradient descent, etc.)
+
+Nevertheless, it's important to understand the difference between reinforcement learning and supervised learning in this context. Since, we don't now the true value function we need to come up with strategies that allow us to define suitable targets to use in place of the true value function.
+
+$\Delta w = \alpha (v_{\pi}(s) - v(s,w)) \cdot \Delta_w v(s,w)$
+
+### Monte Carlo learning
+
+One way to come up with a target for our value function is the *expected return* we know from Monte Carlo learning.
+
+$G_t = R_{t+1} + \gamma \cdot R_{t+2} + \gamma ^2 \cdot R_{t+3}$
+
+So, if we plug this into our update rule, we simply get:
+
+$\Delta w = \alpha (G_t - v(s,w)) \cdot \Delta_w v(s,w)$
+
+Of course, same can be done for action value functions as well.
+
+$\Delta w = \alpha (G_t - q(S_t, A_t, w)) \cdot \Delta_w v(S_t,A_t,w)$
+
+> **Monte Carlo with function approximation**
+> 
+> Initialize $w$ with random values  
+> Initialize policy: $\pi = \epsilon-greedy(q(s,a,w))$
+> 
+> **Repeat till convergence**
+> 
+> **Evaluation:**  
+> Generate an episode $S_0, A_0, R_1, ... S_T$ using $\pi$  
+> **for** t=1 **to** T:  
+> $\hspace{0.5cm} \Delta w = \alpha (G_t - q(S_t, A_t, w)) \cdot \Delta_w v(S_t,A_t,w)$
+> 
+> **Improvement:**  
+> $\pi = \epsilon-greedy(q(s,a,w))$
+
+
+### Temporal difference learning
+
+We can also consider the update function we know from TD learning and reuse the estimate for the expected return.
+
+$V(S_t) = V(S_t) + \alpha (R_{t+1} + \gamma V(S_{t+1}) - V(S_t))$
+
+**Expected return:** $R_{t+1} + \gamma V(S_{t+1})$
+
+Therefore, our update rule becomes:
+
+$\Delta w = \alpha (R_{t+1} + \gamma \cdot V(S_{t+1},w) - V(S_t,w)) \cdot \Delta_w V(S_t,w)$
+
+
+> **TD(0) control with function approximation**
+> 
+> Initialize $w$ randomly  
+> $\pi = \epsilon-greedy(q(s,a,w))$
+> 
+> **repeat** for many episodes:  
+> $\hspace{0.5cm}$ Initial state: $S$  
+> $\hspace{0.5cm}$ **while** $S$ is non-terminal:  
+> $\hspace{1cm}$ Choose action $A$ from state $S$ using policy $\pi$  
+> $\hspace{1cm}$ Take action $A$, observe $R$, $S'$  
+> $\hspace{1cm}$ Choose action $A'$ from state $S'$ using policy $\pi$  
+> $\hspace{1cm}$ Update: $\Delta w = \alpha (R + \gamma \cdot q(S',A',w) - q(S,A,w)) \cdot \Delta_w q(S,A,w)$  
+> $\hspace{1cm}$ $S = S'$; $A = A'$
+
+<br/>
+
+> **SARSA for continuing tasks**
+> 
+> Initialize $w$ randomly  
+> $\pi = \epsilon-greedy(q(s,a,w))$
+> 
+> Initial state: $S$  
+> 
+> **repeat** forever:  
+> $\hspace{0.5cm}$ Choose action $A$ from state $S$ using policy $\pi$  
+> $\hspace{0.5cm}$ Take action $A$, observe $R$, $S'$  
+> $\hspace{0.5cm}$ Choose action $A'$ from state $S'$ using policy $\pi$  
+> $\hspace{0.5cm}$ Update: $\Delta w = \alpha (R + \gamma \cdot q(S',A',w) - q(S,A,w)) \cdot \Delta_w q(S,A,w)$  
+> $\hspace{0.5cm}$ $S = S'$; $A = A'$
