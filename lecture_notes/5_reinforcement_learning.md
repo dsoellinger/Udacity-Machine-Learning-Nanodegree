@@ -983,10 +983,10 @@ In other words, we are trying to approximate the state-value function by means o
 
 So far, we haven't discussed how to find the correct values for $w$. In fact, we now turned our problem into a numeric optimization problem that can be solved using gradient descent.
 
-- Value function: $v(s,w) = x(s)^T \cdot w \hspace{4cm} \Delta_w(s,w) = x(s)$  
+- Value function: $v(s,w) = x(s)^T \cdot w \hspace{4cm} \nabla_w(s,w) = x(s)$  
 - Minimize error: $J(w) = \mathbb{E_{\pi}}[(v_{\pi}(s) - x(s)^T \cdot w)^2]$
-- Error gradient: $\Delta_w J(w) = -2(v_{\pi}(s) - x(s)^T \cdot w) \cdot x(s)$
-- Update rule: $\Delta w = - \alpha \frac{1}{2} \Delta_w J(w) = - \alpha (v_{\pi}(s) - x(s)^T \cdot w) \cdot x(s)$
+- Error gradient: $\nabla_w J(w) = -2(v_{\pi}(s) - x(s)^T \cdot w) \cdot x(s)$
+- Update rule: $\Delta w = - \alpha \frac{1}{2} \nabla_w J(w) = - \alpha (v_{\pi}(s) - x(s)^T \cdot w) \cdot x(s)$
 
 **Note:** In case of the action-value function we can simply turn our vector $w$ into a matrix.
 
@@ -1026,7 +1026,7 @@ Such a network can then be train using methods we already know (backpropagation,
 
 Nevertheless, it's important to understand the difference between reinforcement learning and supervised learning in this context. Since, we don't now the true value function we need to come up with strategies that allow us to define suitable targets to use in place of the true value function.
 
-$\Delta w = \alpha (v_{\pi}(s) - v(s,w)) \cdot \Delta_w v(s,w)$
+$\Delta w = \alpha (v_{\pi}(s) - v(s,w)) \cdot \nabla_w v(s,w)$
 
 ### Monte Carlo learning
 
@@ -1036,11 +1036,11 @@ $G_t = R_{t+1} + \gamma \cdot R_{t+2} + \gamma ^2 \cdot R_{t+3}$
 
 So, if we plug this into our update rule, we simply get:
 
-$\Delta w = \alpha (G_t - v(s,w)) \cdot \Delta_w v(s,w)$
+$\Delta w = \alpha (G_t - v(s,w)) \cdot \nabla_w v(s,w)$
 
 Of course, same can be done for action value functions as well.
 
-$\Delta w = \alpha (G_t - q(S_t, A_t, w)) \cdot \Delta_w v(S_t,A_t,w)$
+$\Delta w = \alpha (G_t - q(S_t, A_t, w)) \cdot \nabla_w v(S_t,A_t,w)$
 
 > **Monte Carlo with function approximation**
 > 
@@ -1052,7 +1052,7 @@ $\Delta w = \alpha (G_t - q(S_t, A_t, w)) \cdot \Delta_w v(S_t,A_t,w)$
 > **Evaluation:**  
 > Generate an episode $S_0, A_0, R_1, ... S_T$ using $\pi$  
 > **for** t=1 **to** T:  
-> $\hspace{0.5cm} \Delta w = \alpha (G_t - q(S_t, A_t, w)) \cdot \Delta_w v(S_t,A_t,w)$
+> $\hspace{0.5cm} \Delta w = \alpha (G_t - q(S_t, A_t, w)) \cdot \nabla_w v(S_t,A_t,w)$
 > 
 > **Improvement:**  
 > $\pi = \epsilon-greedy(q(s,a,w))$
@@ -1068,7 +1068,7 @@ $V(S_t) = V(S_t) + \alpha (R_{t+1} + \gamma V(S_{t+1}) - V(S_t))$
 
 Therefore, our update rule becomes:
 
-$\Delta w = \alpha (R_{t+1} + \gamma \cdot V(S_{t+1},w) - V(S_t,w)) \cdot \Delta_w V(S_t,w)$
+$\Delta w = \alpha (R_{t+1} + \gamma \cdot V(S_{t+1},w) - V(S_t,w)) \cdot \nabla_w V(S_t,w)$
 
 
 > **TD(0) control with function approximation**
@@ -1082,7 +1082,7 @@ $\Delta w = \alpha (R_{t+1} + \gamma \cdot V(S_{t+1},w) - V(S_t,w)) \cdot \Delta
 > $\hspace{1cm}$ Choose action $A$ from state $S$ using policy $\pi$  
 > $\hspace{1cm}$ Take action $A$, observe $R$, $S'$  
 > $\hspace{1cm}$ Choose action $A'$ from state $S'$ using policy $\pi$  
-> $\hspace{1cm}$ Update: $\Delta w = \alpha (R + \gamma \cdot q(S',A',w) - q(S,A,w)) \cdot \Delta_w q(S,A,w)$  
+> $\hspace{1cm}$ Update: $\Delta w = \alpha (R + \gamma \cdot q(S',A',w) - q(S,A,w)) \cdot \nabla_w q(S,A,w)$  
 > $\hspace{1cm}$ $S = S'$; $A = A'$
 
 <br/>
@@ -1098,5 +1098,61 @@ $\Delta w = \alpha (R_{t+1} + \gamma \cdot V(S_{t+1},w) - V(S_t,w)) \cdot \Delta
 > $\hspace{0.5cm}$ Choose action $A$ from state $S$ using policy $\pi$  
 > $\hspace{0.5cm}$ Take action $A$, observe $R$, $S'$  
 > $\hspace{0.5cm}$ Choose action $A'$ from state $S'$ using policy $\pi$  
-> $\hspace{0.5cm}$ Update: $\Delta w = \alpha (R + \gamma \cdot q(S',A',w) - q(S,A,w)) \cdot \Delta_w q(S,A,w)$  
+> $\hspace{0.5cm}$ Update: $\Delta w = \alpha (R + \gamma \cdot q(S',A',w) - q(S,A,w)) \cdot \nabla_w q(S,A,w)$  
 > $\hspace{0.5cm}$ $S = S'$; $A = A'$
+
+
+### Q-Learning
+
+Q-Learning is an off-policy variant of TD learning.
+
+> **Q-Learning with function approximation**
+> 
+> Initialize $w$ randomly  
+> $\pi = \epsilon-greedy(q(s,a,w))$
+> 
+> **repeat** for many episodes:  
+> $\hspace{0.5cm}$ Initial state: $S$    
+> $\hspace{0.5cm}$ **while** $S$ is non-terminal:  
+> $\hspace{1cm}$ Choose action $A$ from state $S$ using policy $\pi$  
+> $\hspace{1cm}$ Take action $A$, observe $R$, $S'$   
+> $\hspace{1cm}$ Update: $\Delta w = \alpha (R + \gamma \cdot max_a q(S',a,w) - q(S,A,w)) \cdot \nabla_w q(S,A,w)$  
+> $\hspace{1cm}$ $S = S'$
+
+<br/>
+
+> **Q-Learning for continuing tasks**
+> 
+> Initialize $w$ randomly  
+> $\pi = \epsilon-greedy(q(s,a,w))$
+> 
+> Initial state: $S$  
+> 
+> **repeat** forever:  
+> $\hspace{0.5cm}$ Choose action $A$ from state $S$ using policy $\pi$  
+> $\hspace{0.5cm}$ Take action $A$, observe $R$, $S'$  
+> $\hspace{0.5cm}$ Update: $\Delta w = \alpha (R + \gamma \cdot max_a q(S',a,w) - q(S,A,w)) \cdot \nabla_w q(S,A,w)$   
+> $\hspace{0.5cm}$ $S = S'$
+
+
+### Sarsa vs. Q-Learning
+
+**Sarsa:**  
+- On-policy method  
+- Good online performance  
+- Q-values affected by exploration
+
+**Q-Learning**  
+- Off-policy method  
+- Bad online performance  
+- Q-values unaffected by exploration
+
+**Off-Policy advantages**  
+- More exploration when learning  
+- Learning from demonstration  
+- Supports offline or batch learning
+
+
+### Deep Q-Learning
+
+Our goal is to develop a neural network that acts as a function approximator. 
