@@ -1153,6 +1153,95 @@ Q-Learning is an off-policy variant of TD learning.
 - Supports offline or batch learning
 
 
-### Deep Q-Learning
+### Experience replay
 
-Our goal is to develop a neural network that acts as a function approximator. 
+**Experience replay** is a strategy that is typically used in Deep Q-Learning.  
+So far, in reinforcement learning at each time step we obtained a $<S_t, A_t, R_{t+1}, S_{t+1}>$ tuple. We then learned and immediately discarded the tuple.  
+This is where the **replay buffer** joins the game. Instead of discarding the tuples, we store all of them in a buffer. This allows us to recall all experiences later on. This especially comes in handy if certain state occur rarely or if some action are pretty costly. By sampling a small batch of tuples we can learn from it multiple times and even recall rare occurrences.
+
+<img src="images/replay_buffer.png" width="350px" />
+
+Additionally, there's also another problem that experience replay can help with which especially comes in handy in DQN. As you might have noticed, any action $A_t$ we take affects the next state $S_t$ in some way. Therefore, the sequence of experience tuples can be highly correlated. So, a naive Q-Learning algorithm which only learns from experiences in sequential order might suffer from this correlation. However, experience replay allows us to sample from this buffer at random (it doesn't have to be in the same sequence as we stored the tuples). This helps to break to correlation and ultimately prevents action values from oscillating or diverging.
+
+### Fixed Q targets
+
+Experience replay helps us to address correlation between consecutive experienced tuples. However, there another form of correlation that Q-Learning is susceptible too.
+
+Let's consider Q-Learning's update rule. As we know Q-Learning is a form of TD-Learning
+
+$\Delta w = \alpha (R + \gamma \cdot max_a q(S',a,w) - q(S,A,w)) \cdot \nabla_w q(S,A,w)$ 
+
+TD target: $R + \gamma \cdot max_a q(S',a,w)$  
+Current value: $q(S,A,w)$  
+TD error: $R + \gamma \cdot max_a q(S',a,w) - q(S,A,w)$
+
+Note, that the TD target is supposed to be a replacement for the true value function $ q_{\pi}(S,A)$. Of course, mathematically this is not fully correct since our TD target is dependent on our function approximation or its parameters. However, we can get await with it in practice since every update results in a small change to the parameters which is generally in the right direction. However, literally we could describe it as chasing a moving target.
+
+Now, as the name already suggest, we could try to fix our targets by fixing the TD target's parameter $w$. 
+
+Fixed TD target: $R + \gamma \cdot max_a q(S',a,w^-)$ where $w^-$ is a fixed parameters
+
+$w^-$ is basically a copy of $w$ that we don't change for a certain number of learning steps. This **decouples** the target from the parameters and makes the learning algorithm more stable and less likely to diverge or fall into oscillation.
+
+### Deep Q-Learning algorithm
+
+> **Deep Q-Learning algorithm**
+> 
+> Initialize replay memory $D$ with capacity $N$  
+> Initialize action-value function $\widehat{q}$ with random weights $w$  
+> Initialize target-value weights $w^- = w$
+> 
+> **for** the episode $e=1$ to $M$:  
+> $\hspace{0.5cm}$ Initial input frame $x_1$  
+> $\hspace{0.5cm}$ Prepare initial state: $S = \phi(<x_1>)$  
+> $\hspace{0.5cm}$ **for** time step $t=1$ to $T$:
+>   
+> $\hspace{1cm}$ **Sample:**    
+> $\hspace{1cm}$ Choose action $A$ from state $S$ using policy $\pi = \epsilon - greedy(\widehat{q}(S,A,w))$  
+> $\hspace{1cm}$ Take action $A$, observe reward $R$ and next input frame $x_{t+1}$  
+> $\hspace{1cm}$ Prepare next state: $S' = \phi(<x_{t-2},x_{t-1}, x_t, x_{t+1}>)$  
+> $\hspace{1cm}$ Store experience tuple $(S,A,R;S')$ in replay memory $D$  
+> $\hspace{1cm}$ $S = S'$
+> 
+> $\hspace{1cm}$ **Learn:**  
+> $\hspace{1cm}$ Obtain random minibatch of tuples $(s_j,a_j,r_j,s_{j+1})$ from $D$  
+> $\hspace{1cm}$ Set target $y_j = r_j + \gamma \cdot max_a \widehat{q}(s_{j+1},a,w^-)$  
+> $\hspace{1cm}$ Update: $\Delta w = \alpha ( y_i - \widehat{q}(s_j,a_j,w)) \cdot \nabla_w q(s_j,a_j,w)$  
+> $\hspace{1cm}$ Every $C$ steps reset $w^- = w$
+
+
+### DQN improvements
+
+#### Double DQNs
+
+Double DQNs address the problem of overestimation of action values that Q-Learning is prone to.
+Due to TD target's max operation Q-learning always picks the action with the maximum q-value. Therefore, especially at the early states where the q-values are still evolving we are likely to make a mistake. It has been shown that this results in an overestimation of q-values.
+
+Double DQNs try to overcome this problem by selecting the best action best on parameters $w$, but then perform the evaluation based on a different set of parameters $w'$. It's like having two function approximators that must agree on the same action. If we pick an action that is not the best according to $w'$ then the q-value is not that high. In the long run, this prevents the algorithm from propagating incidental high rewards that may have been obtain by chance and don't reflect long-term returns.
+
+$R + \gamma \cdot \widehat{q}(S', argmax_a \widehat{q}(S',a,w),w')$
+
+#### Prioritized experience replay
+
+When we perform experience replay we need to select samples that are stored in our replay buffer. Some of this samples might be more important for learning than others. Unfortunately, some of the important experiences might even occur infrequently. So, if we sample them uniformly, these experience will have a very small chance of getting selected. Additionally, since our buffer typically has a limited size, we might even lose them after some time. 
+
+One way to overcome this problem is by assigning priorities to tuples. One approach to assign such a weight is based on the TD error $\delta_t$. The larger the error, the more we are expected to learn from a tuple.
+
+**TD Error:** $\delta_t = R_{t+1} + \gamma \cdot max_a \widehat{q}(S_{t+1},a,w) - \widehat(S_t,A_t,w)$
+
+**Priority:**  
+$p_t = |\delta_t|$
+
+When can then determine a **sampling probability** for each sample:
+
+$p(i) = \frac{p_i}{\sum_k p_k}$
+
+#### Dueling networks
+
+The idea of dueling networks is to estimate two stream. One stream estimates the state-value function and another on estimates the advantage values of each action. Summing up both values then gives us the estimates q-value. 
+The intuition behind this is that the values of most states don't vary a lot across actions. So, we can directly try to estimate them. But, we still have to estimate the different actions made in each state. This is where the advantage function comes in.
+
+<img src="images/dueling_networks.png" width="400px" />
+
+
+
