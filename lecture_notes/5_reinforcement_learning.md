@@ -1243,5 +1243,169 @@ The intuition behind this is that the values of most states don't vary a lot acr
 
 <img src="images/dueling_networks.png" width="400px" />
 
+## Policy-based method
+
+So far, we have been looking at value-based methods where we tried to find the optimal value function and the policy was implicitly defined by that value function.  
+Policy-based methods allow us to directly found the policy without value functions at all.
+
+### Why policy-based methods?
+
+In value-based methods like Q-Learning we invented the idea of a value function as an intermediate steps towards finding the optimal policy.
+
+**Value-based:** $\hspace{1cm} \widehat{q}(s,a) \approx q_*(s,a) \hspace{3cm} \pi(\widehat{q}(s,a)) = \pi*$
+
+In a policy-based approach we want to get rid of this intermediate step. In other words, in the deterministic case we choose our action based on a function $\pi: s \rightarrow a$.  
+And in the stochastic case $a \sim \pi(s,a) = \mathbb{P}[a|s]$. 
+
+This is simpler since we are directly getting to the problem at hand. Additionally, we avoid storing a bunch of additional data. In general, we can say that policy-based methods are better suited for continuous action spaces than value-based methods. This is because in a discrete space we can easily pick the action with the maximum value. However, in the continuous case the max-operation turns into an optimization problem itself. It's like finding the global maximum of a continuous function.
+
+### Policy function approximation
+
+By using function approximation we can extend policy-based methods to cover large and continuous state spaces. To do this we parameterize our policy with $\theta$.
+
+#### Discrete spaces
+
+$a \sim \pi(s,a, \theta) = \mathbb[a|s,\theta]$
+
+For example, an approximation function would simply be the linear combination of features.
+
+$f(s,a,\theta) = x(s,a)^T \theta$
+
+By applying a softmax function we can then turn this into a probability distribution. Of course this **only works for a discrete set of actions**.
+
+$a \sim \pi(s,a,\theta) = \frac{e^{f(s,a)^T \theta}}{\sum_{a'} e^{f(s,a',\theta)}}$  
+
+####  Continuous spaces
+
+In case of continuous action spaces we can use a Gaussian policy.
+
+$f(s,a,\theta) = x(s,a)^T \theta$
+
+$a \sim \pi(s,a,\theta) = N(\mu,\sigma^2)$
+
+We can then determine the parameters of our Gaussian by $\mu = f(s,a,\theta)$ and fix the variance $\sigma^2$ or parameterize in a similar way.
+
+#### Objective function
+
+Finally, we need to find an objective measure that tells us how good our policy is. Such a function typically needs to capture the rewards obtained under such policy.
+
+$J(\theta) = \mathbb{E_\pi}[R(\tau)]$ 
+
+**Note:** Trajectory $\tau$ represents a complete or partial episode. $\tau = S_0, A_0, R_1, S_1, ...$  
+The expected value be computed by sampling over multiple trajectories.  
+
+**Start state value:**  
+For instance, in case of episodic tasks we can use the mean of the return from the first time step. $J_1(\theta) = \mathbb{E}_\pi[G_1] = \mathbb{E}_\pi[V(s_1)]$
+
+**Average state value:**  
+In continuing environments we can't rely on a specific start state. So, it's better to define a measure that's not dependent on that. One such measure is the expected state value.  
+$J_v(\theta) = \mathbb{E}_\pi[V(s)] = \sum_s d(s) V(s)$
+
+Note that each state value needs to be weighted by the probability of occurrence of the respective state. That is its stationary probability.
+
+**Stationary probability:** $d(s) = \frac{N(s)}{\sum_{s'} N(s')}$
+
+#### Objective function overview
+
+**Start state value:**  $J_1(\theta) = \mathbb{E}_\pi[G_1] = \mathbb{E}_\pi[V(s_1)]$  
+**Average state value:**  $J_v(\theta) = \mathbb{E}_\pi[V(s)]$  
+**Average action value:**  $J_v(\theta) = \mathbb{E}_\pi[Q(s,a)]$  
+**Average reward:**  $J_v(\theta) = \mathbb{E}_\pi[r]$
+
+### Stochastic policy search
+
+We are now going to discuss how to find the best policy. Let's assume that we have no knowledge of how our objective function looks like. In other words, know nothing about its surface (maximum/minimum).
+
+To find a maximum we start by selecting an arbitrary policy $\pi$ by choosing its parameters $\theta$. We then evaluate the policy in the environment which provides us with an objective value.  
+Afterwards, we change the $\theta$ slightly. Therefore, our objective function will change as well. This can be achieved by adding Gaussian noise to the parameters. If the policy is better than any policy we had so far, we can set this policy and iterate.
+
+The major advantage of this approach is that we can use any policy function since it does not have to be differentiable or continuous. We call this procedure **hill climbing**. Of course, since we only take random steps, this approach might not end up in the most efficient part of the hill. 
+
+#### Improvement
+
+We can improve the algorithm by choosing a small number of neighboring policies and pick the best among them. In other words, we pick a policy and then generate a few additional policy by varying its parameters slightly. Evaluating the policies then gives us an intuition of how the surround looks like. We then pick the policy that looks most promising and iterate. This approach is called **steepest ascent hill climbing**.
+
+**Simulated annealing** allows us to reduce the risk of getting stuck in a local optimum. It uses a predefined schedule to control how the policy space is explorer. Starting with a large noise parameter (that is a large region we explore), we gradually reduce the noise (and radius) as we get closer and closer to the optimal solution.
+
+**Adaptive noise scaling** is similar to simulated annealing. In every iteration we decrease the amount of noise added to the parameters. However, at some point we might not be able to find a better policy anymore. Therefore, we now increase the amount of noise added to the parameters. This makes it much more less likely to get stuck (especially in domains with a complicated objective function).
+
+### Policy gradients
+
+One of the reasons why we want to use stochastic policy search is because we don't need to know anything about the objective function. Unfortunately, it's sensitive to the choice of individual samples, may get stuck in local optima or take a long time to converge.
+
+However, if we knew more about the objective function (and it's differentiable!), we could even take more efficient steps.
+
+#### What to do if our objective function is not differentiable?
+
+We can try to estimate the gradient using **finite differences**.  
+For every dimension $k$ we estimate the gradient by adding a small value and computing the difference between the resulting policy value and the current one.
+
+$\frac{\partial J(\theta}{\partial \theta_k} \approx \frac{J(\theta + \epsilon u_k) - J(\theta)}{\epsilon}$
+
+We then collect all partial derivatives and put them into a single vector:
+
+$\Delta_{\theta} J(\theta) \approx <\frac{\partial J(\theta)}{\partial \theta_1},\frac{\partial J(\theta)}{\partial \theta_2}, ..., \frac{\partial J(\theta)}{\partial \theta_n}>$
+
+This evaluation can take a long time!
+
+#### Computing gradients analytically
+
+If we do have access to the underlying policy function, then it's more efficient to compute the gradient analytically.
+
+$J(\theta) = \mathbb{E}_\pi[R(\tau)]$
+
+$\nabla_\theta(\tau) = \nabla_\theta \mathbb{E}_\pi [ R(\tau) ]$
+
+Computing such a gradient isn't as difficult as you might think:
+
+**Score function gradient estimator:**
+
+$\nabla_\theta \mathbb{E}_\pi [ f(x) ]$  
+$= \nabla_\theta \sum_x \mathbb{P}[x|\theta] f(x)$  
+$= \sum_x \nabla_\theta \mathbb{P}[x|\theta] f(x)$  
+$= \sum_x \mathbb{P}[x|\theta] \frac{\nabla_\theta \mathbb{P}[x|\theta]}{\mathbb{P}[x|\theta]} f(x) \hspace{3cm}$ **Likelihood ratio trick**  
+$= \sum_x \mathbb{P}[x|\theta] \nabla_\theta (log \mathbb{P}[x|\theta]) f(x)$  
+$= \mathbb{E}_\pi [ \nabla_\theta (log \mathbb{P}[x|\theta]) f(x) ]$
+
+### Monte Carlo policy gradients
+
+> **REINFORCE algorithm**
+> 
+> Initialize $\theta$ arbitrarily
+> 
+> **for** each episode $\tau = S_0,A_0,R_1,S_1,...,S_T$:  
+> $\hspace{0.5cm}$ **for** $t=1$ to $T-1$:  
+> $\hspace{1cm}$ $\Delta \theta = \alpha \nabla \pi(S_t,A_t,\theta)) G_t$   
+> $\hspace{1cm}$ $\theta = \theta + \Delta \theta$
+
+### Constrained policy gradients
 
 
+
+## Actor-critic methods
+
+Reinforcement learning problems can be solved using two broad categories of methods:
+
+- **Value-based methods (e.g. Monte Carlo learning, Q-Learning)**  
+  We try to represent the value of each state or state-actions pair. Given any state we then pick the action with the best value. This works well when we have a finite number of actions.
+  
+- **Policy-based methods**   
+  Encode the mapping from states to actions without worrying about value-representation and then directly optimise the policy. This works well in case of stochastic policies or continuous spaces.
+  
+The main challenge with policy-based methods is that it's to compute how good a policy is. This is were we bring in the idea of value functions back into the picture. For instance, we could try to keep track of state or state action values to compute the objective. This is were **actor-critic methods** are all about.
+
+###  A better score function
+
+Let's consider the score function in a typical policy gradient based update rule.
+
+$\Delta \theta = \alpha \nabla_\theta (log\pi(S_t,A_t,\theta)) R(\tau)$
+
+For episodic tasks we can use the episode's returns $G_t$ as the value of the score function ($R(\tau) = G_t$).
+
+However, if your task is not episodic we need to find another score function that can be compute online. For example, we can try to replace the episode's return with the action-value of the state-action pair.
+
+$\Delta \theta = \alpha \nabla_\theta (log\pi(S_t,A_t,\theta)) Q(S_t,A_t)$
+
+However, we still need to find $Q(S_t,A_t)$. This can be achieved by a TD approach and can even run in parallel with our policy updates.
+
+$Q(S_t,A_t) = Q(S_t,A_t) + \beta (R_{t+1} + \gamma Q(S_{t+1},A_{t+1}) - Q(S_t,A_t))$
