@@ -1380,8 +1380,19 @@ $= \mathbb{E}_\pi [ \nabla_\theta (log \mathbb{P}[x|\theta]) f(x) ]$
 
 ### Constrained policy gradients
 
+So far, we only cared about maximizing the overall expected reward. This can result in two policies that are close to each other in the objective function's space, but widely different in the way the behave. Furthermore, in fields like robotics drastic changes of policy parameters may literally break things.  
+For these reasons we should pay attention to the policy parameters in addition to the objective function. So, we might want to put some constraint on the parameters.
 
+$J(\theta) = \mathbb{E} [R(\tau)]$  
+$D(\pi(\cdot,\cdot,\theta),\pi(\cdot,\cdot,\theta')) \leq \delta \hspace{2cm}$ **Constraint**
 
+One way to introduce this constraint is by adding a **penalty term** to the objective function.
+
+$J(\theta) = \mathbb{E} [R(\tau)] - \beta D(\pi(\cdot,\cdot,\theta),\pi(\cdot,\cdot,\theta'))$
+
+A simple way to quantify the difference between two policies is the **Euclidean distance (norm)**.
+
+$D(\pi(\cdot,\cdot,\theta),\pi(\cdot,\cdot,\theta')) = ||\theta - \theta'||_2$
 ## Actor-critic methods
 
 Reinforcement learning problems can be solved using two broad categories of methods:
