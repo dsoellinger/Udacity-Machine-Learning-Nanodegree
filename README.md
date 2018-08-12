@@ -51,6 +51,7 @@ This repository contains project files and lecture notes for Udacity's Machine L
 **See lecture notes:** [here](3_unsupervised_learning.pdf)
 
 ### Deep learning
+(Less comprehensive due to my prior knowledge)
 
 **Topics covered in this section:**
 
@@ -73,5 +74,15 @@ This repository contains project files and lecture notes for Udacity's Machine L
   Iterative policy evaluation, estimation of action values, policy improvement, policy iteration, truncated policy iteration, value iteration
 - **Monte Carlo methods**  
   Predicting state values, estimating action-values, incremental mean, policy evaluation, policy improvement, exploration-exploitation dilemma, GLIE MC control algorithm, constant-alpha GLIE MC control algorithm
+- **Temporal difference learning**  
+  TD(0) prediction, action value estimation, solving the control problem, 
+Sarsamax (Q-learning), expected Sarsa
+- **Deep reinforcement learning**  
+  Discrete and continuous spaces, discretization, coarse coding, tile coding, function approximation, kernel functions, coarse coding
+- **Deep Q-Learning**  
+ NNs as value functions, Monte Carlo learning, TD learning, Q-learning, Sarsa vs. Q-learning, experience replay, fixed Q-targets, different types of DQNs
+- **Policy-based methods**  
+Policy function approximation, stochastic policy search, policy gradients, Monte Carlo policy gradients, constrained policy gradients
+- **Actor-critic methods**  
 
 **See lecture notes:** [here](5_reinforcement_learning.pdf)
