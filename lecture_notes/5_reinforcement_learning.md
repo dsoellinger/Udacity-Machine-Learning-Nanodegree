@@ -1403,7 +1403,7 @@ Reinforcement learning problems can be solved using two broad categories of meth
 - **Policy-based methods**   
   Encode the mapping from states to actions without worrying about value-representation and then directly optimise the policy. This works well in case of stochastic policies or continuous spaces.
   
-The main challenge with policy-based methods is that it's to compute how good a policy is. This is were we bring in the idea of value functions back into the picture. For instance, we could try to keep track of state or state action values to compute the objective. This is were **actor-critic methods** are all about.
+The main challenge with policy-based methods is that it's hard to compute how good a policy is. This is were we bring in the idea of value functions back into the picture. For instance, we could try to keep track of state or state action values to compute the objective. This is what **actor-critic methods** are all about.
 
 ###  A better score function
 
@@ -1420,3 +1420,32 @@ $\Delta \theta = \alpha \nabla_\theta (log\pi(S_t,A_t,\theta)) Q(S_t,A_t)$
 However, we still need to find $Q(S_t,A_t)$. This can be achieved by a TD approach and can even run in parallel with our policy updates.
 
 $Q(S_t,A_t) = Q(S_t,A_t) + \beta (R_{t+1} + \gamma Q(S_{t+1},A_{t+1}) - Q(S_t,A_t))$
+
+### Two function approximations
+
+For most complex problems we have to deal with continuous state and action spaces. For a problem like this the **policy update rule** might look as follows:
+
+$\Delta \theta = \alpha \nabla_\theta (log(\pi(S_t,A_t,\theta))) \cdot q(S_t,A_t,w)$
+
+Furthermore, this could be the corresponding **value update rule** for the action-value function:
+
+$\Delta w = \beta (R_{t+1} + \gamma q(S_{t+1}, A_{t+1},w) - q(S_t,A_t,w)) \nabla q(S_t,A_t,w)$ 
+
+Note that $\theta$ characterizes the policy $\pi$ (the probability of taking an action from a given state) while $w$ encodes the value $q$ of taking that action from that state.
+
+We can say that $\pi$ controls how our reinforcement agent (**actor**) behaves and $q$ controls how good those actions are. Therefore, we can say that $q$ **critiques** those actions. 
+
+### The actor and the critic
+
+We can think of the training process as of an interaction between an **actor** and a **critic**. The actor behaves according to some policy. The observes the actor's behavior and provides feedback. Learning from this the actor updates its policy and performs again and the critic continues to provide more feedback. The critic also updates its own notes (value function) so that it can provide better feedback.
+
+Now, let's introduce the maths behind this components.
+
+The policy approximator $\pi$ is parameterized by $\theta$. The value function approximator is parameterized by $w$. At each time step $t$ we sample the current state of the environment $S_t$. Using $S_t$ as an input, the policy produces an action $A_t$. The actor takes the action in the environment and this produces the next state $S_{t+1}$ as well as a reward $R_{t+1}$.  
+The critic can now calculate the value of taking action $A_t$ in state $S_t$ using the value function $q$. The actor can now update $\theta$ using $q$ and the policy update rule. Once the actor produced the next action $A_{t+1}$, the critic is able to update its parameters $w$ using the value update rule.  
+This process is repeat at each time step!
+
+<img src="images/actor_and_critic.png" width="400px" />
+
+### Advantage function
+
